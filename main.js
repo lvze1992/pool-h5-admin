@@ -1,6 +1,7 @@
 // https://zhuanlan.zhihu.com/p/86309704
 // 引入electron并创建一个Browserwindow
 // https://blog.csdn.net/jbguo/article/details/90209297
+// https://cloudconvert.com/png-to-icns
 const { app, BrowserWindow } = require('electron');
 const path = require('path');
 const url = require('url');
@@ -12,21 +13,15 @@ function createWindow() {
   /*
    * 加载应用----- electron-quick-start中默认的加载入口
    */
-  if (process.env.ENV === 'production') {
-    console.log('production build');
-
-    mainWindow.loadURL(
-      url.format({
-        pathname: path.join(__dirname, './build/index.html'),
-        protocol: 'file:',
-        slashes: true,
-      }),
-    );
-  } else {
-    console.log('dev build');
-    // 加载应用----适用于 react 项目
-    mainWindow.loadURL('http://localhost:4000/');
-  }
+  mainWindow.loadURL(
+    url.format({
+      pathname: path.join(__dirname, './build/index.html'),
+      protocol: 'file:',
+      slashes: true,
+    }),
+  );
+  // 加载应用----适用于 react 项目
+  // mainWindow.loadURL('http://localhost:4001/');
 
   // 打开开发者工具，默认不打开
   mainWindow.webContents.openDevTools();

@@ -83,7 +83,9 @@
     "build": "react-app-rewired build",
     "test": "react-app-rewired test --env=jsdom",
     "electron-start": "electron .",
-    "package": "set ENV=production && electron-packager . admin --win --out=release --arch=x64 --app-version=1.0.0 --electron-version 12.0.6 --overwrite"
+    "package": "set ENV=production && electron-packager . admin --win --out=release --arch=x64 --app-version=1.0.0 --electron-version 12.0.6 --overwrite",
+    "package:mac": "set ENV=production && electron-packager . admin --platform=darwin --arch=x64 --overwrite --icon=./public/logo.icns --out=out --asar --app-version=0.0.1 --ignore=\"(dist|src|docs|.gitignore|LICENSE|README.md|webpack.config*|node_modules)\" --extra-resource=\"./public\"",
+    "package:win": "set ENV=production && electron-packager . admin --platform=win32 --arch=x64 --overwrite --icon=./public/favicon.ico --out=out --asar --app-version=0.0.1 --ignore=\"(dist|src|docs|.gitignore|LICENSE|README.md|webpack.config.js|node_modules)\" --extra-resource=\"./public\""
   },
   "eslintConfig": {
     "extends": [
