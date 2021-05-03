@@ -1,0 +1,39 @@
+.App {
+}
+.input-box {
+  display: flex;
+  align-items: center;
+  input.custom-input {
+    background-color: transparent;
+    border: none;
+    line-height: 40px;
+    width: 100%;
+    color: #fff;
+    letter-spacing: 1px;
+  }
+}
+.code-box {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  input.custom-input {
+    font-size: 30px;
+    letter-spacing: 25px;
+    text-align: left;
+    width: 280px;
+    margin: 0 auto;
+    position: relative;
+    left: 30px;
+  }
+  .split-line {
+    width: 251px;
+    height: 1px;
+    background-color: rgba(255, 255, 255, 0.5);
+    margin: 10px auto;
+  }
+}
+.action-button {
+  color: #4cb2e0;
+  font-size: 14px;
+}
