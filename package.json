@@ -1,7 +1,9 @@
 {
-  "name": "h5",
+  "name": "admin",
   "version": "0.1.0",
   "private": true,
+  "main": "main.js",
+  "homepage": ".",
   "dependencies": {
     "@babel/core": "7.12.3",
     "@pmmmwh/react-refresh-webpack-plugin": "0.4.3",
@@ -79,7 +81,9 @@
   "scripts": {
     "start": "react-app-rewired start",
     "build": "react-app-rewired build",
-    "test": "react-app-rewired test --env=jsdom"
+    "test": "react-app-rewired test --env=jsdom",
+    "electron-start": "electron .",
+    "package": "set ENV=production && electron-packager . admin --win --out=release --arch=x64 --app-version=1.0.0 --electron-version 12.0.6 --overwrite"
   },
   "eslintConfig": {
     "extends": [
@@ -160,6 +164,8 @@
     "babel-plugin-import": "^1.13.3",
     "css-loader": "^4.3.0",
     "customize-cra": "^1.0.0",
+    "electron": "12.0.6",
+    "electron-packager": "^15.2.0",
     "less": "^4.1.1",
     "less-loader": "^5.0.0",
     "node-sass": "^5.0.0",

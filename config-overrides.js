@@ -1,5 +1,5 @@
 const path = require('path');
-process.env.BUILD_PATH = 'docs';
+process.env.PORT = '4000';
 
 const { override, addDecoratorsLegacy, addWebpackAlias } = require('customize-cra');
 
