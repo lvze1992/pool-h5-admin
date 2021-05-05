@@ -1,7 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { message, Input, Space, Button } from 'antd';
 export default function ActiveKey(props) {
   const [activeKey, setActiveKey] = useState('');
+  useEffect(() => {
+    window.bgCancelAnimate && window.bgCancelAnimate();
+  }, []);
   return (
     <div className="key-page">
       <Space
@@ -17,7 +20,7 @@ export default function ActiveKey(props) {
           placeholder="请输入激活码"
           prefix={<i className="iconfont iconshebeijihuo" />}
           onChange={(e) => {
-            setActiveKey(e.target.value)
+            setActiveKey(e.target.value);
           }}
         />
         <Button
@@ -26,8 +29,10 @@ export default function ActiveKey(props) {
           onClick={() => {
             if (!activeKey) {
               message.warning('请输入有效激活码');
+              return;
             }
-            props.setActiveKey(activeKey)
+            window.bgAnimate && window.bgAnimate();
+            props.setActiveKey(activeKey);
           }}
         >
           下一步

@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
+import { loadAnimate, cancelAnimate } from 'src/imgs/animateBg/load';
+import MoonImg from 'src/imgs/animateBg/moon.png';
 import { message } from 'antd';
 import Utils from 'src/utils';
 import Actions from 'src/actions';
@@ -27,9 +29,17 @@ export default function Setting() {
   const history = useHistory();
   let store = useStore();
   const [activeKey, setActiveKey] = useState('');
-  console.log('activeKey', activeKey);
+  useEffect(() => {
+    loadAnimate();
+    return function () {
+      cancelAnimate();
+    };
+  }, []);
   return (
     <div className="auth-page">
+      <div className="sky-container">
+        <img src={MoonImg} alt="moon" />
+      </div>
       {!activeKey ? (
         <ActiveKey setActiveKey={setActiveKey} />
       ) : (
