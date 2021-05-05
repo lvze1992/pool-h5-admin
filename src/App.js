@@ -1,7 +1,7 @@
 //https://reactrouter.com/web/example/sidebar
 import React from 'react';
 import { BrowserRouter as Router, Switch, Route, Redirect, useLocation } from 'react-router-dom';
-import { Tab, Auth, Dashboard } from './pages';
+import { Tab, Auth, Dashboard, PowerHistory, UserHistory, Profit, Withdraw } from './pages';
 import { ProvideStore, useStore } from './Provider';
 import './App.scss';
 
@@ -37,6 +37,13 @@ function App() {
           <Switch>
             <Tab>
               <PrivateRoute path="/dashboard" component={Dashboard} />
+              <Route path="/chia">
+                <Redirect exact from="/chia" to="/chia/powerHistory" />
+                <PrivateRoute path="/chia/powerHistory" component={PowerHistory} />
+                <PrivateRoute path="/chia/userHistory" component={UserHistory} />
+                <PrivateRoute path="/chia/profit" component={Profit} />
+                <PrivateRoute path="/chia/withdraw" component={Withdraw} />
+              </Route>
             </Tab>
           </Switch>
         </Switch>

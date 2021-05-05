@@ -1,7 +1,9 @@
-.tab-bar {
-  .am-tab-bar-tab-icon {
-    i {
-      font-size: 24px;
-    }
+.tab-menu {
+  display: flex;
+  .menu-container {
+    flex: 1;
+  }
+  .menu-icon {
+    margin-right: 5px;
   }
 }
