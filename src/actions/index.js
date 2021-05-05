@@ -15,10 +15,19 @@ class Actions {
   /**
    * 用户
    */
+  async queryAllUsers(phone) {
+    const user = new AV.Query('User');
+    user.contains('mobilePhoneNumber', phone);
+    const query = new AV.Query('UserInfo');
+    query.matchesQuery('user', user);
+    return (await query.find()).map((i) => i.toJSON());
+  }
   async queryUser(phone) {
     if (phone) {
+      const user = new AV.Query('User');
+      user.equalTo('mobilePhoneNumber', phone);
       const query = new AV.Query('UserInfo');
-      query.equalTo('phone', phone);
+      query.matchesQuery('user', user);
       const userInfo = await query.first();
       return userInfo;
     } else {
@@ -107,6 +116,39 @@ class Actions {
     ChiaPower.set('totalProfit', totalProfit);
     // 将对象保存到云端
     return await ChiaPower.save();
+  }
+  async insertUserBuy(values, chiaConfig) {
+    const { startDay, endDay } = chiaConfig;
+    const { buyPower, buyPowerCost, date, userId } = values;
+    const dateStr = Utils.dateFormat(date);
+    const user = AV.Object.createWithoutData('User', userId);
+    await this.closingLimit('ChiaWork', ['closingDate', dateStr]);
+    const ChiaUserBuy = new AV.Object('ChiaUserBuy');
+    ChiaUserBuy.set('date', dateStr);
+    // TODO check
+    const startDate = moment(`${dateStr} 00:00:00`).add(1, 'day').add(startDay, 'day').format('YYYY-MM-DD HH:mm:ss');
+    ChiaUserBuy.set('startDate', startDate);
+    const endDate = moment(startDate).add(endDay, 'day').format('YYYY-MM-DD HH:mm:ss');
+    ChiaUserBuy.set('endDate', endDate);
+    ChiaUserBuy.set('user', user);
+    ChiaUserBuy.set('verifier', AV.User.current());
+    ChiaUserBuy.set('buyPower', buyPower);
+    ChiaUserBuy.set('buyPowerCost', buyPowerCost);
+    return await ChiaUserBuy.save();
+  }
+  async getUserBuy() {
+    const query = new AV.Query('ChiaUserBuy');
+    query.descending('date');
+    query.include('user');
+    query.include('verifier');
+    query.limit(100);
+    const data = await query.find();
+    return data.map((i) => {
+      const user = i.get('user');
+      const verifier = i.get('verifier');
+      const data = i.toJSON();
+      return { ...data, user: user ? user.toJSON() : user, verifier: verifier ? verifier.toJSON() : verifier };
+    });
   }
   /**
    * 限制

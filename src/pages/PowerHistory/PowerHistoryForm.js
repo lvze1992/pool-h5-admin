@@ -21,7 +21,6 @@ const onFinish = async (values, { setShowDraw }) => {
 };
 
 const onFinishFailed = (errorInfo) => {
-  console.log('Failed:', errorInfo);
 };
 export default function PowerHistoryForm(props) {
   const [loading, setLoading] = useState(false);

@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Form, Input, Button, DatePicker, message, Tooltip } from 'antd';
 import Actions from 'src/actions';
+import { useStore } from 'src/Provider';
+import { UserSelector } from 'src/components';
 const { Item } = Form;
 const layout = {
   labelCol: { span: 8 },
@@ -10,9 +12,9 @@ const tailLayout = {
   wrapperCol: { offset: 8, span: 16 },
 };
 const required = { required: true, message: '必填' };
-const onFinish = async (values, { setShowDraw }) => {
+const onFinish = async (values, { setShowDraw, store }) => {
   try {
-    await Actions.insertDayPower(values);
+    await Actions.insertUserBuy(values, store.chia.chiaConfig);
     message.success('添加成功');
     setShowDraw(false);
   } catch (e) {
@@ -21,61 +23,35 @@ const onFinish = async (values, { setShowDraw }) => {
 };
 
 const onFinishFailed = (errorInfo) => {
-  console.log('Failed:', errorInfo);
 };
 export default function UserHistoryForm(props) {
   const [loading, setLoading] = useState(false);
+  const store = useStore();
   const { setShowDraw } = props;
+  const [form] = Form.useForm();
   return (
     <Form
+      form={form}
       {...layout}
       name="basic"
       onFinish={async (values) => {
         setLoading(true);
-        await onFinish(values, { setShowDraw });
+        await onFinish(values, { setShowDraw, store });
+        form.resetFields();
         setLoading(false);
       }}
       onFinishFailed={onFinishFailed}
     >
-      <Item name="date" label="录入日期：" rules={[required]}>
+      <Item name="date" label="购买日期：" rules={[required]}>
         <DatePicker />
       </Item>
-      <Item name="totalPower" label="总算力/T：">
+      <Item name="userId" label="手机号：" rules={[required]}>
+        <UserSelector />
+      </Item>
+      <Item name="buyPower" label="购买算力/T：" rules={[required]}>
         <Input type="number" />
       </Item>
-      <Item name="availablePower" label="有效算力/T：">
-        <Input type="number" />
-      </Item>
-      <Item name="todayProfit" label="当日收益/XCH：">
-        <Input type="number" />
-      </Item>
-      <Item name="perTProfit" label="单T收益/XCH：" rules={[required]}>
-        <Input type="number" />
-      </Item>
-      <Item
-        name="totalProfit"
-        label={
-          <span>
-            <Tooltip
-              placement="left"
-              title={
-                <div>
-                  <p>会影响累计收益的计算。</p>
-                  <p>
-                    如设定了5月1日的累计收益为X
-                    <br />
-                    5月2日当日收益为Y。
-                  </p>
-                  <p>则5月2日的累计收益为X+Y，不再累计5月1日前的收益</p>
-                </div>
-              }
-            >
-              <i className="iconfont icontishi" />
-            </Tooltip>
-            累计收益/XCH：
-          </span>
-        }
-      >
+      <Item name="buyPowerCost" label="购买总值/USDT：" rules={[required]}>
         <Input type="number" />
       </Item>
       <Item {...tailLayout}>

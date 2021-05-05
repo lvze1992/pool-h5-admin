@@ -1,53 +1,41 @@
 import React, { useState, useEffect } from 'react';
 import { message, Table, Tooltip, Button } from 'antd';
-import moment from 'moment';
 import { useStore } from 'src/Provider';
 import actions from 'src/actions';
-import Utils from 'src/utils';
+import _ from 'lodash';
 const getColumns = (chia) => [
   {
-    title: '日期',
+    title: '手机号',
+    dataIndex: 'phone',
+    key: 'phone',
+    render: (v, i) => {
+      return _.get(i, 'user.mobilePhoneNumber', '-');
+    },
+  },
+  {
+    title: '购买算力/T',
+    dataIndex: 'buyPower',
+    key: 'buyPower',
+  },
+  {
+    title: '购买总值(花费)/USDT',
+    dataIndex: 'buyPowerCost',
+    key: 'buyPowerCost',
+  },
+  {
+    title: '购买时间',
     dataIndex: 'date',
     key: 'date',
   },
   {
-    title: '总算力/T',
-    dataIndex: 'totalPower',
-    key: 'totalPower',
+    title: '生效时间',
+    dataIndex: 'startDate',
+    key: 'startDate',
   },
   {
-    title: '有效算力/T',
-    dataIndex: 'availablePower',
-    key: 'availablePower',
-  },
-  {
-    title: '当日收益/XCH',
-    dataIndex: 'todayProfit',
-    key: 'todayProfit',
-  },
-  {
-    title: '单T收益/XCH',
-    dataIndex: 'perTProfit',
-    key: 'perTProfit',
-  },
-  {
-    title: '累计收益/XCH',
-    dataIndex: 'totalProfit',
-    key: 'totalProfit',
-    render: (v, i) => {
-      const { rewrite } = i;
-      if (rewrite) {
-        return (
-          <span style={{ color: 'red', fontWeight: 'bold' }}>
-            <Tooltip title="管理员重写了总收益">
-              <i className="iconfont icontishi" />
-            </Tooltip>
-            {v}
-          </span>
-        );
-      }
-      return v;
-    },
+    title: '到期时间',
+    dataIndex: 'endDate',
+    key: 'endDate',
   },
   // {
   //   title: '操作',
@@ -70,24 +58,12 @@ const getColumns = (chia) => [
 ];
 async function fetchData() {
   try {
-    const data = await actions.getDayPower();
+    const data = await actions.getUserBuy();
     return data;
   } catch (e) {
     message.warning(e.rawMessage || '异常：PHT20');
     return [];
   }
-}
-function calcTotal(data) {
-  let total = 0;
-  return data
-    .reverse()
-    .map((i) => {
-      const { totalProfit, todayProfit } = i;
-      const curTotalProfit = totalProfit ? totalProfit : Utils.calc(`${total}+${todayProfit || 0}`);
-      total = curTotalProfit;
-      return { ...i, totalProfit: curTotalProfit, rewrite: !!totalProfit };
-    })
-    .reverse();
 }
 export default function UserHistoryTable(props) {
   const { showDraw, reloadPage } = props;
@@ -98,7 +74,7 @@ export default function UserHistoryTable(props) {
     (async function () {
       setLoading(true);
       const data = await fetchData();
-      setDataSource(calcTotal(data));
+      setDataSource(data);
       setLoading(false);
     })();
   }, [showDraw, reloadPage]);
