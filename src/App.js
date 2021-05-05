@@ -32,7 +32,7 @@ function App() {
     <ProvideStore>
       <Router>
         <Switch>
-          <Redirect exact from="/" to="/dashboard" />
+          <Redirect exact from="/" to="/chia/powerHistory" />
           <Route path="/auth" component={Auth} />
           <Switch>
             <Tab>

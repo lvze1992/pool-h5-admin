@@ -20,6 +20,7 @@ async function login({ activeKey, phone, pwd, sms, store, history }) {
     const user = await Actions.AV.User.logIn(`+86${phone}`, pwd);
     localStorage.setItem('activeKey', activeKey);
     store.signin(user.toJSON());
+    store.seActiveKey(activeKey);
     history.replace('/');
   } catch (e) {
     message.warning(e.rawMessage || '验证码错误');

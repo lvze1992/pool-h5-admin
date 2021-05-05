@@ -6,7 +6,7 @@ function useProvideStore() {
   const currentUser = Actions.AV.User.current();
   const [activeKey, seActiveKey] = useState(localStorage.getItem('activeKey') || '');
   const [user, setUser] = useState(currentUser ? currentUser.toJSON() : null);
-  console.log('user', user, Actions.AV, activeKey);
+  console.log('user', user, Actions.AV);
   const userPhone = user ? user.mobilePhoneNumber : '';
   const isMatched = Utils.matched(activeKey, userPhone.replace('+86', ''));
   const signin = (user, cb) => {
