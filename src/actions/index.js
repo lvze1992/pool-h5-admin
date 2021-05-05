@@ -92,10 +92,13 @@ class Actions {
       return {};
     }
   }
-  async getDayPower() {
+  async getDayPower(date) {
     const query = new AV.Query('ChiaPower');
     query.descending('date');
     query.limit(1000);
+    if (date) {
+      query.equalTo('date', date);
+    }
     const data = await query.find();
     return data.map((i) => {
       return i.toJSON();
@@ -140,18 +143,90 @@ class Actions {
     ChiaUserBuy.set('buyPowerCost', buyPowerCost);
     return await ChiaUserBuy.save();
   }
-  async getUserBuy() {
+  async getUserBuyAll() {
+    let allList = [];
+    let limit = 1000;
+    let skip = 0;
+    let userBuyList = await this.getUserBuy(limit, skip);
+    allList = allList.concat(userBuyList);
+    while (userBuyList.length === limit) {
+      skip = skip + limit;
+      userBuyList = await this.getUserBuy(limit, skip);
+      allList = allList.concat(userBuyList);
+    }
+    return allList;
+  }
+  async getUserBuy(limit = 100, skip = 0) {
     const query = new AV.Query('ChiaUserBuy');
     query.descending('date');
     query.include('user');
     query.include('verifier');
-    query.limit(100);
+    query.limit(limit);
+    query.skip(skip);
     const data = await query.find();
     return data.map((i) => {
       const user = i.get('user');
       const verifier = i.get('verifier');
       const data = i.toJSON();
       return { ...data, user: user ? user.toJSON() : user, verifier: verifier ? verifier.toJSON() : verifier };
+    });
+  }
+  async getUserBuyProfit(objectId) {
+    const chiaUserBuy = AV.Object.createWithoutData('ChiaUserBuy', objectId);
+    const query = new AV.Query('ChiaUserProfitList');
+    query.equalTo('chiaUserBuy', chiaUserBuy);
+    const data = await query.find();
+    return data.map((i) => {
+      return i.toJSON();
+    });
+  }
+  /**
+   * 收益
+   */
+  async publishUserProfit(values, chiaConfig) {
+    const { profitList, profitSummary } = values;
+    const { closingDate } = chiaConfig;
+    const { date: dateStr } = profitSummary;
+    await this.closingLimit('ChiaWork', ['closingDate', dateStr]);
+    const preDay = moment(dateStr).add(-1, 'day').format('YYYY-MM-DD');
+    if (moment(preDay).isAfter(moment(closingDate))) {
+      await this.preLimit('ChiaUserProfitSummary', ['date', preDay]);
+    }
+    await this.uniqLimit('ChiaUserProfitSummary', ['date', dateStr]);
+    // 1 更新ChiaUserProfitSummary
+    const chiaProfitSummary = new AV.Object('ChiaUserProfitSummary');
+    const chiaProfitSummaryKeys = ['availablePower', 'buyPower', 'todayProfit', 'userNumber', 'perTProfit', 'date'];
+    chiaProfitSummaryKeys.forEach((key) => {
+      chiaProfitSummary.set(key, profitSummary[key]);
+    });
+    chiaProfitSummary.set('verifier', AV.User.current());
+    // 2 更新ChiaProfitList
+    const chiaProfitListKeys = ['buyPower', 'availablePower', 'waitpPower', 'todayProfit', 'totalProfit', 'perTProfit', 'date'];
+    const profitListFetches = [];
+    profitList.forEach((i) => {
+      const { totalProfit, userBuyObjectId } = i;
+      const userBuyObject = AV.Object.createWithoutData('ChiaUserBuy', userBuyObjectId);
+      // 3 更新ChiaUserBuy
+      userBuyObject.set('totalProfit', totalProfit);
+      profitListFetches.push(userBuyObject);
+      const chiaProfitList = new AV.Object('ChiaUserProfitList');
+      chiaProfitListKeys.forEach((key) => {
+        chiaProfitList.set(key, i[key]);
+      });
+      chiaProfitList.set('chiaUserBuy', userBuyObject);
+      const user = AV.Object.createWithoutData('User', i.user.objectId);
+      chiaProfitList.set('user', user);
+      chiaProfitList.set('verifier', AV.User.current());
+      profitListFetches.push(chiaProfitList);
+    });
+    return await AV.Object.saveAll([chiaProfitSummary, ...profitListFetches]);
+  }
+  async getChiaProfitSummaryHistory() {
+    const query = new AV.Query('ChiaUserProfitSummary');
+    query.descending('date');
+    const data = await query.find();
+    return data.map((i) => {
+      return i.toJSON();
     });
   }
   /**

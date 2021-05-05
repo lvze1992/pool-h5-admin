@@ -4,80 +4,72 @@ import { message, Table, Tooltip, Button } from 'antd';
 import { useStore } from 'src/Provider';
 import actions from 'src/actions';
 import _ from 'lodash';
+const commonRender = (v, i) => {
+  return (
+    <Tooltip title={v}>
+      <span className="overflow-text">{v}</span>
+    </Tooltip>
+  );
+};
 const getColumns = (chia) => [
   {
-    title: '手机号',
-    dataIndex: 'phone',
-    key: 'phone',
-    render: (v, i) => {
-      return _.get(i, 'user.mobilePhoneNumber', '-');
-    },
-  },
-  {
-    title: '购买算力/T',
-    dataIndex: 'buyPower',
-    key: 'buyPower',
-  },
-  {
-    title: '购买总值(花费)/USDT',
-    dataIndex: 'buyPowerCost',
-    key: 'buyPowerCost',
-  },
-  {
-    title: '购买时间',
+    title: '日期',
     dataIndex: 'date',
     key: 'date',
   },
   {
-    title: '生效时间',
-    dataIndex: 'startDate',
-    key: 'startDate',
+    title: '有效算力/T',
+    dataIndex: 'availablePower',
+    key: 'availablePower',
+    render: commonRender,
   },
   {
-    title: '到期时间',
-    dataIndex: 'endDate',
-    key: 'endDate',
+    title: '待P盘算力/T',
+    dataIndex: 'waitpPower',
+    key: 'waitpPower',
+    render: commonRender,
   },
   {
-    title: '累计收益/XCH',
+    title: '当日挖矿净收益/XCH',
+    dataIndex: 'todayProfit',
+    key: 'todayProfit',
+    render: commonRender,
+  },
+  {
+    title: '累计挖矿净收益/XCH',
     dataIndex: 'totalProfit',
     key: 'totalProfit',
+    render: commonRender,
   },
   {
-    title: '操作',
-    dataIndex: 'operation',
-    key: 'operation',
-    render: (v, i) => {
-      return (
-        <Link to={`/chia/userHistory/${i.objectId}`}>
-          <Button size="small">详情</Button>
-        </Link>
-      );
-    },
+    title: '单T收益/XCH',
+    dataIndex: 'perTProfit',
+    key: 'perTProfit',
+    render: commonRender,
   },
 ];
-async function fetchData() {
+async function fetchData(objectId) {
   try {
-    const data = await actions.getUserBuy();
+    const data = await actions.getUserBuyProfit(objectId);
     return data;
   } catch (e) {
-    message.warning(e.rawMessage || '异常：PHT20');
+    message.warning(e.rawMessage || '异常：UHD47');
     return [];
   }
 }
 export default function UserHistoryTable(props) {
-  const { showDraw, reloadPage } = props;
+  const { showDraw, reloadPage, objectId } = props;
   const [dataSource, setDataSource] = useState([]);
   const [loading, setLoading] = useState(true);
   const { chia } = useStore();
   useEffect(() => {
     (async function () {
       setLoading(true);
-      const data = await fetchData();
+      const data = await fetchData(objectId);
       setDataSource(data);
       setLoading(false);
     })();
-  }, [showDraw, reloadPage]);
+  }, [showDraw, reloadPage, objectId]);
   return (
     <div className="table-container">
       <Table

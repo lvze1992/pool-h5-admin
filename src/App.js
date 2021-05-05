@@ -1,7 +1,7 @@
 //https://reactrouter.com/web/example/sidebar
 import React from 'react';
 import { BrowserRouter as Router, Switch, Route, Redirect, useLocation } from 'react-router-dom';
-import { Tab, Auth, Dashboard, PowerHistory, UserHistory, Profit, Withdraw } from './pages';
+import { Tab, Auth, Dashboard, PowerHistory, UserHistory, Profit, Withdraw, UserHistoryDetail } from './pages';
 import { ProvideStore, useStore } from './Provider';
 import './App.scss';
 
@@ -41,6 +41,7 @@ function App() {
                 <Switch>
                   <Redirect exact from="/chia" to="/chia/powerHistory" />
                   <PrivateRoute path="/chia/powerHistory" component={PowerHistory} />
+                  <PrivateRoute path="/chia/userHistory/:objectId" component={UserHistoryDetail} />
                   <PrivateRoute path="/chia/userHistory" component={UserHistory} />
                   <PrivateRoute path="/chia/profit" component={Profit} />
                   <PrivateRoute path="/chia/withdraw" component={Withdraw} />
