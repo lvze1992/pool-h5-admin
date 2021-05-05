@@ -7,7 +7,7 @@ export default function Tab(props) {
   const history = useHistory();
   return (
     <div className="tab-menu">
-      <Button>2323</Button>
+      <Button>{JSON.stringify(location)}</Button>
       {props.children}
     </div>
   );

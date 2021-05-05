@@ -13,18 +13,18 @@ function createWindow() {
   /*
    * 加载应用----- electron-quick-start中默认的加载入口
    */
-  mainWindow.loadURL(
-    url.format({
-      pathname: path.join(__dirname, './build/index.html'),
-      protocol: 'file:',
-      slashes: true,
-    }),
-  );
-  // 加载应用----适用于 react 项目
-  // mainWindow.loadURL('http://localhost:4001/');
-
-  // 打开开发者工具，默认不打开
+  // dev
+  mainWindow.loadURL('http://localhost:4001/');
   mainWindow.webContents.openDevTools();
+  // pro
+  // mainWindow.loadURL(
+  //   url.format({
+  //     pathname: path.join(__dirname, './build/index.html'),
+  //     protocol: 'file:',
+  //     slashes: true,
+  //   }),
+  // );
+
   // 关闭window时触发下列事件.
   mainWindow.on('closed', function () {
     mainWindow = null;

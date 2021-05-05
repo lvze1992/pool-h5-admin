@@ -12,7 +12,7 @@ function PrivateRoute({ authType, component, ...rest }) {
     <Route
       {...rest}
       component={
-        store.user
+        store.user && store.activeKey
           ? component
           : () => (
               <Redirect

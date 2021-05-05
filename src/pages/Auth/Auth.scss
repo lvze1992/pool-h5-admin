@@ -1,2 +1,17 @@
 .auth-page {
+  .key-page {
+    text-align: center;
+    padding: 200px 100px;
+  }
+  .sms-tip {
+    font-size: 12px;
+    text-align: center;
+    cursor: pointer;
+    .second {
+      color: #1890ff;
+    }
+    .reset-sms {
+      color: #1890ff;
+    }
+  }
 }
