@@ -37,3 +37,19 @@
   color: #4cb2e0;
   font-size: 14px;
 }
+.ghost-button {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+  cursor: pointer;
+  &:active {
+    i {
+      font-size: 28px;
+      line-height: 30px;
+    }
+  }
+  i {
+    font-size: 30px;
+    line-height: 30px;
+  }
+}

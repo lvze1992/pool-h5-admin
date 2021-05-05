@@ -1,6 +1,7 @@
 import AV from 'leancloud-storage';
 import Utils from 'src/utils';
 import _ from 'lodash';
+import moment from 'moment';
 class Actions {
   constructor() {
     AV.init({
@@ -69,6 +70,80 @@ class Actions {
     const phone = userInfo.get('phone');
     userInfo.set('tradePwd', Utils.hashIt(tradePwd + phone));
     await userInfo.save();
+  }
+  /**
+   * chia 每日算力
+   */
+  async getChiaConfig() {
+    try {
+      const query = new AV.Query('ChiaWork');
+      const r = await query.first();
+      return r ? r.toJSON() : {};
+    } catch (e) {
+      return {};
+    }
+  }
+  async getDayPower() {
+    const query = new AV.Query('ChiaPower');
+    query.descending('date');
+    query.limit(1000);
+    const data = await query.find();
+    return data.map((i) => {
+      return i.toJSON();
+    });
+  }
+  async insertDayPower(values) {
+    const { date, totalPower, availablePower, todayProfit, perTProfit, totalProfit } = values;
+    const dateStr = Utils.dateFormat(date);
+    await this.closingLimit('ChiaWork', ['closingDate', dateStr]);
+    await this.preLimit('ChiaPower', ['date', moment(dateStr).add(-1, 'day').format('YYYY-MM-DD')]);
+    await this.uniqLimit('ChiaPower', ['date', dateStr]);
+    const ChiaPower = new AV.Object('ChiaPower');
+    ChiaPower.set('date', dateStr);
+    ChiaPower.set('totalPower', totalPower);
+    ChiaPower.set('availablePower', availablePower);
+    ChiaPower.set('todayProfit', todayProfit);
+    ChiaPower.set('perTProfit', perTProfit);
+    ChiaPower.set('totalProfit', totalProfit);
+    // 将对象保存到云端
+    return await ChiaPower.save();
+  }
+  /**
+   * 限制
+   */
+  // 前置日期限制
+  async preLimit(table, limit) {
+    const [key, value] = limit;
+    const query = new AV.Query(table);
+    query.equalTo(key, value);
+    const exist = await query.first();
+    if (!exist) {
+      // eslint-disable-next-line no-throw-literal
+      throw { rawMessage: `请先添加${value}的数据` };
+    }
+  }
+  // 记录唯一性
+  async uniqLimit(table, limit) {
+    const [key, value] = limit;
+    const query = new AV.Query(table);
+    query.equalTo(key, value);
+    const exist = await query.first();
+    if (exist) {
+      // eslint-disable-next-line no-throw-literal
+      throw { rawMessage: '已添加过该日记录 或 记录不唯一' };
+    }
+  }
+  // 结算日期限制
+  async closingLimit(table, limit) {
+    const [key, value] = limit;
+    const query = new AV.Query(table);
+    const config = await query.first();
+    const { closingDate } = config.toJSON();
+    const isAfter = moment(value).isAfter(moment(closingDate));
+    if (!isAfter) {
+      // eslint-disable-next-line no-throw-literal
+      throw { rawMessage: '不能修改已结算日期前的数据' };
+    }
   }
 }
 export default new Actions();

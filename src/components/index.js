@@ -1,5 +1,3 @@
-import CustomNav from './CustomNav';
-import Loading from './Loading';
-import CodeInput from './CodeInput';
+import PageHeader from './PageHeader';
 
-export { CustomNav, Loading, CodeInput };
+export { PageHeader };
