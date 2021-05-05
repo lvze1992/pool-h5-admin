@@ -38,11 +38,13 @@ function App() {
             <Tab>
               <PrivateRoute path="/dashboard" component={Dashboard} />
               <Route path="/chia">
-                <Redirect exact from="/chia" to="/chia/powerHistory" />
-                <PrivateRoute path="/chia/powerHistory" component={PowerHistory} />
-                <PrivateRoute path="/chia/userHistory" component={UserHistory} />
-                <PrivateRoute path="/chia/profit" component={Profit} />
-                <PrivateRoute path="/chia/withdraw" component={Withdraw} />
+                <Switch>
+                  <Redirect exact from="/chia" to="/chia/powerHistory" />
+                  <PrivateRoute path="/chia/powerHistory" component={PowerHistory} />
+                  <PrivateRoute path="/chia/userHistory" component={UserHistory} />
+                  <PrivateRoute path="/chia/profit" component={Profit} />
+                  <PrivateRoute path="/chia/withdraw" component={Withdraw} />
+                </Switch>
               </Route>
             </Tab>
           </Switch>

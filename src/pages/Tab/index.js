@@ -5,9 +5,10 @@ import './tab.scss';
 const { SubMenu, Item } = Menu;
 
 export default function Tab(props) {
-  const [current, setCurent] = useState('/chia/powerHistory');
   const location = useLocation();
   const history = useHistory();
+  const [current, setCurent] = useState(location.pathname);
+
   return (
     <div className="tab-menu">
       <Menu
