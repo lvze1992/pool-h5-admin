@@ -101,11 +101,15 @@ class Actions {
       return i.toJSON();
     });
   }
-  async insertDayPower(values) {
+  async insertDayPower(values, chiaConfig) {
+    const { closingDate } = chiaConfig;
     const { date, totalPower, availablePower, todayProfit, perTProfit, totalProfit } = values;
     const dateStr = Utils.dateFormat(date);
     await this.closingLimit('ChiaWork', ['closingDate', dateStr]);
-    await this.preLimit('ChiaPower', ['date', moment(dateStr).add(-1, 'day').format('YYYY-MM-DD')]);
+    const preDay = moment(dateStr).add(-1, 'day').format('YYYY-MM-DD');
+    if (moment(preDay).isAfter(moment(closingDate))) {
+      await this.preLimit('ChiaPower', ['date', preDay]);
+    }
     await this.uniqLimit('ChiaPower', ['date', dateStr]);
     const ChiaPower = new AV.Object('ChiaPower');
     ChiaPower.set('date', dateStr);

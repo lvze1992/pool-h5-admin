@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Form, Input, Button, DatePicker, message, Tooltip } from 'antd';
+import { useStore } from 'src/Provider';
 import Actions from 'src/actions';
 const { Item } = Form;
 const layout = {
@@ -10,9 +11,9 @@ const tailLayout = {
   wrapperCol: { offset: 8, span: 16 },
 };
 const required = { required: true, message: '必填' };
-const onFinish = async (values, { setShowDraw }) => {
+const onFinish = async (values, { setShowDraw, store }) => {
   try {
-    await Actions.insertDayPower(values);
+    await Actions.insertDayPower(values, store.chia.chiaConfig);
     message.success('添加成功');
     setShowDraw(false);
   } catch (e) {
@@ -20,10 +21,10 @@ const onFinish = async (values, { setShowDraw }) => {
   }
 };
 
-const onFinishFailed = (errorInfo) => {
-};
+const onFinishFailed = (errorInfo) => {};
 export default function PowerHistoryForm(props) {
   const [loading, setLoading] = useState(false);
+  const store = useStore();
   const { setShowDraw } = props;
   return (
     <Form
@@ -31,7 +32,7 @@ export default function PowerHistoryForm(props) {
       name="basic"
       onFinish={async (values) => {
         setLoading(true);
-        await onFinish(values, { setShowDraw });
+        await onFinish(values, { setShowDraw, store });
         setLoading(false);
       }}
       onFinishFailed={onFinishFailed}
