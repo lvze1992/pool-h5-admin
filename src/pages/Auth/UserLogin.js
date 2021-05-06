@@ -5,7 +5,7 @@ import Actions from 'src/actions';
 let timer = null;
 async function sendSmsCode({ phone, setRemain }) {
   try {
-    // await Actions.AV.Cloud.requestSmsCode(phone);
+    await Actions.AV.Cloud.requestSmsCode(phone);
     setRemain(60);
     clearInterval(timer);
     timer = setInterval(() => {
