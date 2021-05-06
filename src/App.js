@@ -1,6 +1,6 @@
 //https://reactrouter.com/web/example/sidebar
 import React from 'react';
-import { BrowserRouter as Router, Switch, Route, Redirect, useLocation } from 'react-router-dom';
+import { HashRouter as Router, Switch, Route, Redirect, useLocation } from 'react-router-dom';
 import { Tab, Auth, Dashboard, PowerHistory, UserHistory, Profit, Withdraw, UserHistoryDetail } from './pages';
 import { ProvideStore, useStore } from './Provider';
 import './App.scss';
