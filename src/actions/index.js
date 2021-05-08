@@ -237,7 +237,7 @@ class Actions {
   }
   addUserAssetList(userObj, tokenObj, amount, precision, from) {
     let userAsset = new AV.Object('UserAsset');
-    userAsset.set('available', +Utils.formatAmount(amount, precision));
+    userAsset.set('total', +Utils.formatAmount(amount, precision));
     userAsset.set('token', tokenObj);
     userAsset.set('user', userObj);
     userAsset.set('from', from);
@@ -246,6 +246,17 @@ class Actions {
   async getChiaProfitSummaryHistory() {
     const query = new AV.Query('ChiaUserProfitSummary');
     query.descending('date');
+    const data = await query.find();
+    return data.map((i) => {
+      return i.toJSON();
+    });
+  }
+  async getWithdrawHistory() {
+    const query = new AV.Query('UserWithdraw');
+    query.addAscending('status');
+    query.addDescending('createdAt');
+    query.include('token');
+    query.include('user');
     const data = await query.find();
     return data.map((i) => {
       return i.toJSON();
@@ -287,6 +298,11 @@ class Actions {
       // eslint-disable-next-line no-throw-literal
       throw { rawMessage: '不能修改已结算日期前的数据' };
     }
+  }
+  async confirmWithdraw(withdrawId) {
+    const query = AV.Object.createWithoutData('UserWithdraw', withdrawId);
+    query.set('status', 'done');
+    return await query.save();
   }
 }
 export default new Actions();

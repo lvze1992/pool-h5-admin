@@ -1,7 +1,25 @@
-import React from 'react';
-import { useHistory } from 'react-router-dom';
+import React, { useState } from 'react';
+import { PageHeader } from 'src/components';
+import WithdrawHistoryTable from './WithdrawHistoryTable';
 import './style.scss';
 export default function Withdraw() {
-  const history = useHistory();
-  return <div className="withdraw-page">withdraw</div>;
+  const [reloadPage, setReload] = useState(0);
+  return (
+    <div className="withdraw-page">
+      <PageHeader
+        title="算力每日记录"
+        extra={[
+          <div
+            className="ghost-button"
+            onClick={() => {
+              setReload(Date.now());
+            }}
+          >
+            <i className="iconfont iconshuaxin" />
+          </div>,
+        ]}
+      />
+      <WithdrawHistoryTable reloadPage={reloadPage} setReload={setReload} />
+    </div>
+  );
 }
