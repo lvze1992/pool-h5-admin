@@ -183,7 +183,7 @@ class Actions {
   /**
    * 收益
    */
-  async publishUserProfit(values, chiaConfig) {
+  async publishUserProfit(values, token, chiaConfig) {
     const { profitList, profitSummary } = values;
     const { closingDate } = chiaConfig;
     const { date: dateStr } = profitSummary;
@@ -193,6 +193,7 @@ class Actions {
       await this.preLimit('ChiaUserProfitSummary', ['date', preDay]);
     }
     await this.uniqLimit('ChiaUserProfitSummary', ['date', dateStr]);
+    const tokenObj = AV.Object.createWithoutData('token', token.objectId);
     // 1 更新ChiaUserProfitSummary
     const chiaProfitSummary = new AV.Object('ChiaUserProfitSummary');
     const chiaProfitSummaryKeys = ['availablePower', 'buyPower', 'todayProfit', 'userNumber', 'perTProfit', 'date'];
@@ -200,14 +201,16 @@ class Actions {
       chiaProfitSummary.set(key, profitSummary[key]);
     });
     chiaProfitSummary.set('verifier', AV.User.current());
+    chiaProfitSummary.set('token', tokenObj);
     // 2 更新ChiaProfitList
     const chiaProfitListKeys = ['buyPower', 'availablePower', 'waitpPower', 'todayProfit', 'totalProfit', 'perTProfit', 'date'];
     const profitListFetches = [];
     profitList.forEach((i) => {
-      const { totalProfit, userBuyObjectId } = i;
+      const { totalProfit, userBuyObjectId, todayProfit } = i;
       const userBuyObject = AV.Object.createWithoutData('ChiaUserBuy', userBuyObjectId);
       // 3 更新ChiaUserBuy
       userBuyObject.set('totalProfit', totalProfit);
+      userBuyObject.set('token', tokenObj);
       profitListFetches.push(userBuyObject);
       const chiaProfitList = new AV.Object('ChiaUserProfitList');
       chiaProfitListKeys.forEach((key) => {
@@ -217,9 +220,28 @@ class Actions {
       const user = AV.Object.createWithoutData('User', i.user.objectId);
       chiaProfitList.set('user', user);
       chiaProfitList.set('verifier', AV.User.current());
+      chiaProfitList.set('token', tokenObj);
       profitListFetches.push(chiaProfitList);
+      // 3 追加用户资产
+      const userAsset = this.addUserAssetList(user, tokenObj, todayProfit, token.precision, chiaProfitList);
+      profitListFetches.push(userAsset);
     });
     return await AV.Object.saveAll([chiaProfitSummary, ...profitListFetches]);
+  }
+  async getTokens() {
+    const query = new AV.Query('token');
+    const data = await query.find();
+    return data.map((i) => {
+      return i.toJSON();
+    });
+  }
+  addUserAssetList(userObj, tokenObj, amount, precision, from) {
+    let userAsset = new AV.Object('UserAsset');
+    userAsset.set('available', +Utils.formatAmount(amount, precision));
+    userAsset.set('token', tokenObj);
+    userAsset.set('user', userObj);
+    userAsset.set('from', from);
+    return userAsset;
   }
   async getChiaProfitSummaryHistory() {
     const query = new AV.Query('ChiaUserProfitSummary');

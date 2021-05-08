@@ -7,10 +7,13 @@ function useProvideStore() {
   const [activeKey, seActiveKey] = useState(localStorage.getItem('activeKey') || '');
   const [user, setUser] = useState(currentUser ? currentUser.toJSON() : null);
   const [chiaConfig, setChiaConfig] = useState({});
+  const [tokens, setTokens] = useState([]);
   useEffect(() => {
     (async function () {
       const chiaConfig = await Actions.getChiaConfig();
+      const tokens = await Actions.getTokens();
       setChiaConfig(chiaConfig);
+      setTokens(tokens);
     })();
   }, []);
   console.log('user', user, Actions.AV);
@@ -39,6 +42,7 @@ function useProvideStore() {
     chia: {
       chiaConfig,
     },
+    tokens,
     signin,
     signout,
     seActiveKey,
