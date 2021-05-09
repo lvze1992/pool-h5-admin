@@ -21,3 +21,11 @@ export function formatAmount(value, precision) {
     throw { rawMessage: 'not number!' };
   }
 }
+export function parseAmount(value, precision) {
+  const amount = calc(`${value} / 10 ^ ${precision}`);
+  return +amount;
+}
+export function cutNumber(value, precision) {
+  const number = formatAmount(value, precision).split('.')[0];
+  return parseAmount(number, precision);
+}

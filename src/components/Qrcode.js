@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import qrcode from 'qrcode';
-console.log('qrcode', qrcode);
-
 export default function Qrcode(props) {
   const { title, text } = props;
   const [imgData, setImg] = useState('');
@@ -10,8 +8,6 @@ export default function Qrcode(props) {
       setImg(await qrcode.toDataURL(text));
     })();
   }, []);
-  console.log('imgData', imgData);
-
   return (
     <div
       style={{

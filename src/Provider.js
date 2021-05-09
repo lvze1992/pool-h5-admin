@@ -46,6 +46,7 @@ function useProvideStore() {
     signin,
     signout,
     seActiveKey,
+    setChiaConfig,
   };
 }
 function ProvideStore({ children }) {

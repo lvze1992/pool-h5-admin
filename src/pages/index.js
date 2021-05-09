@@ -6,5 +6,6 @@ import UserHistory from './UserHistory';
 import Profit from './Profit';
 import Withdraw from './Withdraw';
 import UserHistoryDetail from './UserHistoryDetail';
+import Settle from './Settle';
 
-export { Tab, Auth, Dashboard, PowerHistory, UserHistory, Profit, Withdraw, UserHistoryDetail };
+export { Tab, Auth, Dashboard, PowerHistory, UserHistory, Profit, Withdraw, UserHistoryDetail, Settle };

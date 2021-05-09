@@ -5,16 +5,15 @@ import { useStore } from 'src/Provider';
 import actions from 'src/actions';
 import Utils from 'src/utils';
 const { confirm } = Modal;
-async function confirmWithdraw(withdrawId, { setReload }) {
+async function confirmWithdraw(i, { setReload }) {
   confirm({
     title: '确认提现?',
     content: <div>我确认已完成提币</div>,
     onOk: async () => {
       try {
-        await actions.confirmWithdraw(withdrawId);
-        setReload && setReload();
+        await actions.confirmWithdraw(i);
+        setReload && setReload(Date.now());
       } catch (e) {
-        console.log('e', e);
 
         message.warning(e.rawMessage || '异常：WHT16');
       }
@@ -30,7 +29,6 @@ const getColumns = (chia, { setReload }) => [
     dataIndex: 'createdAt',
     key: 'createdAt',
     render: (v) => {
-      console.log('vvv', v);
 
       return Utils.dateFormat(v, 'YYYY-MM-DD HH:mm:ss');
     },
@@ -100,7 +98,7 @@ const getColumns = (chia, { setReload }) => [
             size="small"
             type="danger"
             onClick={() => {
-              confirmWithdraw(i.objectId, { setReload });
+              confirmWithdraw(i, { setReload });
             }}
           >
             标记

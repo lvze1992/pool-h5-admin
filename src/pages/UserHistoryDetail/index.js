@@ -9,8 +9,6 @@ export default function UserHistory() {
   const { objectId } = useParams();
   const [showDraw, setShowDraw] = useState(false);
   const [reloadPage, setReload] = useState(0);
-  console.log('objectId', objectId);
-
   return (
     <div className="userHistory-page">
       <PageHeader

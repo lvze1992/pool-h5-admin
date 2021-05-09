@@ -27,6 +27,7 @@ export default function Tab(props) {
           <Item key="/chia/userHistory">用户记录</Item>
           <Item key="/chia/profit">收益发放</Item>
           <Item key="/chia/withdraw">提现监控</Item>
+          <Item key="/chia/settle">结算</Item>
         </SubMenu>
         <SubMenu key="sub2" icon={<i className="menu-icon iconfont iconyonghu" />} title="用户管理">
           <Item key="11">Option 1</Item>

@@ -1,7 +1,7 @@
 //https://reactrouter.com/web/example/sidebar
 import React from 'react';
 import { HashRouter as Router, Switch, Route, Redirect, useLocation } from 'react-router-dom';
-import { Tab, Auth, Dashboard, PowerHistory, UserHistory, Profit, Withdraw, UserHistoryDetail } from './pages';
+import { Tab, Auth, Dashboard, PowerHistory, UserHistory, Profit, Withdraw, UserHistoryDetail, Settle } from './pages';
 import { ProvideStore, useStore } from './Provider';
 import './App.scss';
 
@@ -45,6 +45,7 @@ function App() {
                   <PrivateRoute path="/chia/userHistory" component={UserHistory} />
                   <PrivateRoute path="/chia/profit" component={Profit} />
                   <PrivateRoute path="/chia/withdraw" component={Withdraw} />
+                  <PrivateRoute path="/chia/settle" component={Settle} />
                 </Switch>
               </Route>
             </Tab>

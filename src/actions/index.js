@@ -86,6 +86,7 @@ class Actions {
   async getChiaConfig() {
     try {
       const query = new AV.Query('ChiaWork');
+      query.descending('createdAt');
       const r = await query.first();
       return r ? r.toJSON() : {};
     } catch (e) {
@@ -175,6 +176,7 @@ class Actions {
     const chiaUserBuy = AV.Object.createWithoutData('ChiaUserBuy', objectId);
     const query = new AV.Query('ChiaUserProfitList');
     query.equalTo('chiaUserBuy', chiaUserBuy);
+    query.descending('date');
     const data = await query.find();
     return data.map((i) => {
       return i.toJSON();
@@ -235,12 +237,13 @@ class Actions {
       return i.toJSON();
     });
   }
-  addUserAssetList(userObj, tokenObj, amount, precision, from) {
+  addUserAssetList(userObj, tokenObj, amount, precision, from, to) {
     let userAsset = new AV.Object('UserAsset');
     userAsset.set('total', +Utils.formatAmount(amount, precision));
     userAsset.set('token', tokenObj);
     userAsset.set('user', userObj);
     userAsset.set('from', from);
+    userAsset.set('to', to);
     return userAsset;
   }
   async getChiaProfitSummaryHistory() {
@@ -261,6 +264,34 @@ class Actions {
     return data.map((i) => {
       return i.toJSON();
     });
+  }
+  /**
+   * 设置结算日
+   */
+  async settleDay(date) {
+    const query = new AV.Query('ChiaWork');
+    query.descending('createdAt');
+    const config = await query.first();
+    const { closingDate } = config.toJSON();
+    const preDay = moment(date).add(-1, 'day').format('YYYY-MM-DD');
+    if (moment(preDay).isAfter(moment(closingDate))) {
+      // eslint-disable-next-line no-throw-literal
+      throw { rawMessage: `请先结算${preDay}` };
+    } else if (moment(date).isSameOrBefore(moment(closingDate))) {
+      // eslint-disable-next-line no-throw-literal
+      throw { rawMessage: `不允许修改之前的结算日` };
+    }
+    const { endDay, name, profitToken, purchaseToken, startDay, totalPday, updatedAt, withdrawFee } = config.toJSON();
+    const insertItem = new AV.Object('ChiaWork');
+    insertItem.set('closingDate', date);
+    insertItem.set('endDay', endDay);
+    insertItem.set('name', name);
+    insertItem.set('profitToken', AV.Object.createWithoutData('token', profitToken.objectId));
+    insertItem.set('purchaseToken', AV.Object.createWithoutData('token', purchaseToken.objectId));
+    insertItem.set('startDay', startDay);
+    insertItem.set('totalPday', totalPday);
+    insertItem.set('withdrawFee', withdrawFee);
+    return await insertItem.save();
   }
   /**
    * 限制
@@ -299,10 +330,14 @@ class Actions {
       throw { rawMessage: '不能修改已结算日期前的数据' };
     }
   }
-  async confirmWithdraw(withdrawId) {
-    const query = AV.Object.createWithoutData('UserWithdraw', withdrawId);
+  async confirmWithdraw(withdrawItem) {
+    const query = AV.Object.createWithoutData('UserWithdraw', withdrawItem.objectId);
+    const user = AV.Object.createWithoutData('User', withdrawItem.user.objectId);
+    const tokenObj = AV.Object.createWithoutData('token', withdrawItem.token.objectId);
     query.set('status', 'done');
-    return await query.save();
+    // 更新用户资产
+    const userAsset = this.addUserAssetList(user, tokenObj, -Utils.parseAmount(withdrawItem.lock, withdrawItem.token.precision), withdrawItem.token.precision, null, query);
+    return await AV.Object.saveAll([query, userAsset]);
   }
 }
 export default new Actions();
