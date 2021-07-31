@@ -42,45 +42,45 @@ const columns = [
     render: commonRender,
   },
   {
-    title: '待P盘算力',
-    dataIndex: 'waitpPower',
-    key: 'waitpPower',
-    render: commonRender,
-  },
-  {
-    title: '当日挖矿净收益/XCH',
+    title: '当日挖矿净收益/ETH',
     dataIndex: 'todayProfit',
     key: 'todayProfit',
     render: commonRender,
   },
   {
-    title: '累计挖矿净收益/XCH',
+    title: '累计挖矿净收益/ETH',
     dataIndex: 'totalProfit',
     key: 'totalProfit',
     render: commonRender,
   },
   {
-    title: '单T收益/XCH',
-    dataIndex: 'perTProfit',
-    key: 'perTProfit',
+    title: '单M收益/ETH',
+    dataIndex: 'perMProfit',
+    key: 'perMProfit',
+    render: commonRender,
+  },
+  {
+    title: '单M单日电费/U',
+    dataIndex: 'powerFeeMD',
+    key: 'powerFeeMD',
     render: commonRender,
   },
 ];
 const onFinish = async (values, { setShowDraw, store }) => {
   try {
-    const token = store.tokens.filter(({ token }) => token === 'XCH')[0];
-    await Actions.publishUserProfit(values, token, store.chia.chiaConfig);
+    const token = store.tokens.filter(({ token }) => token === 'ETH')[0];
+    await Actions.publishUserProfitEth(values, token, store.eth.ethConfig);
     message.success('添加成功');
     setShowDraw(false);
   } catch (e) {
-    message.warning(e.rawMessage || '异常：PHF18');
+    message.warning(e.rawMessage || '异常：PHF76');
   }
 };
 
 export default function UserHistoryForm(props) {
   const [loading, setLoading] = useState(false);
   const store = useStore();
-  const { setShowDraw, profitDate, profitList, profitSummary, perTProfit, setDate } = props;
+  const { setShowDraw, profitDate, profitList, profitSummary, perMProfit, setDate } = props;
   const { availablePower, buyPower, todayProfit, userNumber } = profitSummary;
   return (
     <div className="userProfit-form">
@@ -92,15 +92,15 @@ export default function UserHistoryForm(props) {
             }}
           />
         </Item>
-        <Item label="总发放收益/XCH：">{todayProfit}</Item>
+        <Item label="总发放收益/ETH：">{todayProfit}</Item>
         <Item label="总发放人数：">{userNumber}</Item>
-        <Item label="有效算力/T：">{availablePower}</Item>
-        <Item label="单T收益/XCH：">
-          {perTProfit ? (
-            perTProfit
+        <Item label="有效算力/M：">{availablePower}</Item>
+        <Item label="单M收益/ETH：">
+          {perMProfit ? (
+            perMProfit
           ) : profitDate ? (
-            <Link to="/chia/powerHistory">
-              <span className="alert">前去添加{profitDate}的单T收益</span>
+            <Link to="/eth/powerHistory">
+              <span className="alert">前去添加{profitDate}的单M收益</span>
             </Link>
           ) : (
             '-'
@@ -109,7 +109,7 @@ export default function UserHistoryForm(props) {
         <Item>
           <Button
             type="primary"
-            disabled={!profitDate || loading || !perTProfit}
+            disabled={!profitDate || loading || !perMProfit}
             onClick={() => {
               const { date } = profitSummary;
               confirm({

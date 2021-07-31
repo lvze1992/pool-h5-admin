@@ -5,16 +5,16 @@ import { useStore } from 'src/Provider';
 import { PageHeader } from 'src/components';
 import './style.scss';
 const { confirm } = Modal;
-function settleDay(date, store) {
+function settleEthDay(date, store) {
   confirm({
     title: `确认结算${date}?`,
     content: <div>我确认{date}的数据已核实无误，点击确认后，您将无法插入或修改结算日之前（包括结算日）的数据</div>,
     onOk: async () => {
       try {
-        await Actions.settleDay(date);
+        await Actions.settleEthDay(date);
         message.success('结算成功');
-        const chiaConfig = await Actions.getChiaConfig();
-        store.setChiaConfig(chiaConfig);
+        const ethConfig = await Actions.getEthConfig();
+        store.setEthConfig(ethConfig);
       } catch (e) {
         message.warning(e.rawMessage || '异常：S16');
       }
@@ -30,7 +30,7 @@ export default function Settle() {
   const store = useStore();
   return (
     <div className="settle-page">
-      <PageHeader title="chia矿池结算" />
+      <PageHeader title="ETH矿池结算" />
       <div className="line">
         <DatePicker
           onChange={(date) => {
@@ -40,7 +40,7 @@ export default function Settle() {
         <Button
           type="danger"
           onClick={() => {
-            settleDay(date, store);
+            settleEthDay(date, store);
           }}
           disabled={!date}
         >

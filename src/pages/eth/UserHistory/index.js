@@ -15,6 +15,7 @@ export default function UserHistory() {
         title="用户购买添加"
         extra={[
           <div
+            key="2"
             className="ghost-button"
             onClick={() => {
               setReload(Date.now());

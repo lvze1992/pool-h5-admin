@@ -14,7 +14,7 @@ const tailLayout = {
 const required = { required: true, message: '必填' };
 const onFinish = async (values, { setShowDraw, store }) => {
   try {
-    await Actions.insertUserBuy(values, store.chia.chiaConfig);
+    await Actions.insertUserBuyChia(values, store.chia.chiaConfig);
     message.success('添加成功');
     setShowDraw(false);
   } catch (e) {

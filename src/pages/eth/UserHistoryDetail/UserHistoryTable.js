@@ -11,46 +11,46 @@ const commonRender = (v, i) => {
     </Tooltip>
   );
 };
-const getColumns = (chia) => [
+const getColumns = () => [
   {
     title: '日期',
     dataIndex: 'date',
     key: 'date',
   },
   {
-    title: '有效算力/T',
+    title: '总算力/M',
     dataIndex: 'availablePower',
     key: 'availablePower',
     render: commonRender,
   },
   {
-    title: '待P盘算力/T',
-    dataIndex: 'waitpPower',
-    key: 'waitpPower',
-    render: commonRender,
-  },
-  {
-    title: '当日挖矿净收益/XCH',
+    title: '当日挖矿净收益/ETH',
     dataIndex: 'todayProfit',
     key: 'todayProfit',
     render: commonRender,
   },
   {
-    title: '累计挖矿净收益/XCH',
+    title: '累计挖矿净收益/ETH',
     dataIndex: 'totalProfit',
     key: 'totalProfit',
     render: commonRender,
   },
   {
-    title: '单T收益/XCH',
-    dataIndex: 'perTProfit',
-    key: 'perTProfit',
+    title: '单M收益/ETH',
+    dataIndex: 'perMProfit',
+    key: 'perMProfit',
+    render: commonRender,
+  },
+  {
+    title: '单M单日电费/U',
+    dataIndex: 'powerFeeMD',
+    key: 'powerFeeMD',
     render: commonRender,
   },
 ];
 async function fetchData(objectId) {
   try {
-    const data = await actions.getUserBuyProfit(objectId);
+    const data = await actions.getUserBuyEthProfit(objectId);
     return data;
   } catch (e) {
     message.warning(e.rawMessage || '异常：UHD47');
@@ -61,7 +61,6 @@ export default function UserHistoryTable(props) {
   const { showDraw, reloadPage, objectId } = props;
   const [dataSource, setDataSource] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { chia } = useStore();
   useEffect(() => {
     (async function () {
       setLoading(true);
@@ -73,7 +72,7 @@ export default function UserHistoryTable(props) {
   return (
     <div className="table-container">
       <Table
-        columns={getColumns(chia)}
+        columns={getColumns()}
         dataSource={dataSource}
         loading={loading}
         rowKey="objectId"

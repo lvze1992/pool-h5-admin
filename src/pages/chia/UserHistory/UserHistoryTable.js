@@ -58,7 +58,7 @@ const getColumns = (chia) => [
 ];
 async function fetchData() {
   try {
-    const data = await actions.getUserBuy();
+    const data = await actions.getUserBuyChia();
     return data;
   } catch (e) {
     message.warning(e.rawMessage || '异常：PHT20');

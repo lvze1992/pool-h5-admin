@@ -21,10 +21,10 @@ function useProfitList(store, perTProfit, date) {
         return;
       }
       // 获取所有 用户购买记录
-      const allBuyList = await Actions.getUserBuyAll();
-      const allProduceList = Utils.calcProduce(allBuyList, chiaConfig, perTProfit, date);
+      const allBuyList = await Actions.getUserBuyChiaAll();
+      const allProduceList = Utils.calcChiaProduce(allBuyList, chiaConfig, perTProfit, date);
       setProfitList(allProduceList);
-      const profitSummary = Utils.calcProduceSummary(allProduceList, perTProfit, date);
+      const profitSummary = Utils.calcChiaProduceSummary(allProduceList, perTProfit, date);
       setProfitSummary(profitSummary);
     })();
   }, [store.chia.chiaConfig, perTProfit, date]);

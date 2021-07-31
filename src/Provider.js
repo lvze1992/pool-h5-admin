@@ -13,7 +13,7 @@ function useProvideStore() {
   useEffect(() => {
     (async function () {
       const chiaConfig = await Actions.getChiaConfig();
-      const ethConfig = await Actions.getETHConfig();
+      const ethConfig = await Actions.getEthConfig();
       const tokens = await Actions.getTokens();
       const price = await Actions.getPrice({});
       setChiaConfig(chiaConfig);
@@ -57,6 +57,7 @@ function useProvideStore() {
     signout,
     seActiveKey,
     setChiaConfig,
+    setEthConfig,
   };
 }
 function ProvideStore({ children }) {

@@ -50,7 +50,7 @@ const getColumns = (chia) => [
 ];
 async function fetchData(objectId) {
   try {
-    const data = await actions.getUserBuyProfit(objectId);
+    const data = await actions.getUserBuyChiaProfit(objectId);
     return data;
   } catch (e) {
     message.warning(e.rawMessage || '异常：UHD47');

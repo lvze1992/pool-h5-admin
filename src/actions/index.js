@@ -96,15 +96,17 @@ class Actions {
   /**
    * ETH 每日算力
    */
-  async getETHConfig() {
+  async getEthConfig() {
     try {
       const query = new AV.Query('EthWork');
+      query.descending('createdAt');
       const r = await query.first();
       return r ? r.toJSON() : {};
     } catch (e) {
       return {};
     }
   }
+
   async getChiaDayPower(date) {
     const query = new AV.Query('ChiaPower');
     query.descending('date');
@@ -172,7 +174,7 @@ class Actions {
     // 将对象保存到云端
     return await EthPower.save();
   }
-  async insertUserBuy(values, chiaConfig) {
+  async insertUserBuyChia(values, chiaConfig) {
     const { startDay, endDay } = chiaConfig;
     const { buyPower, buyPowerCost, date, userId } = values;
     const dateStr = Utils.dateFormat(date);
@@ -190,6 +192,27 @@ class Actions {
     ChiaUserBuy.set('buyPower', buyPower);
     ChiaUserBuy.set('buyPowerCost', buyPowerCost);
     return await ChiaUserBuy.save();
+  }
+  async insertUserBuyEth(values) {
+    const { buyPower, buyPowerCost, date, userId, startDate, endDate } = values;
+    const dateStr = Utils.dateFormat(date);
+    const startDateStr = Utils.dateFormat(startDate);
+    const endDateStr = Utils.dateFormat(endDate);
+    if (moment(startDate).isBefore(moment(date)) || moment(endDate).isBefore(moment(startDate))) {
+      // eslint-disable-next-line no-throw-literal
+      throw { rawMessage: '请确保 到期日期 > 生效日期 > 购买日期' };
+    }
+    const user = AV.Object.createWithoutData('User', userId);
+    await this.closingLimit('EthWork', ['closingDate', dateStr]);
+    const EthUserBuy = new AV.Object('EthUserBuy');
+    EthUserBuy.set('date', dateStr);
+    EthUserBuy.set('startDate', startDateStr);
+    EthUserBuy.set('endDate', endDateStr);
+    EthUserBuy.set('user', user);
+    EthUserBuy.set('verifier', AV.User.current());
+    EthUserBuy.set('buyPower', buyPower);
+    EthUserBuy.set('buyPowerCost', buyPowerCost);
+    return await EthUserBuy.save();
   }
   async getPrice() {
     const query = new AV.Query('Price');
@@ -215,20 +238,33 @@ class Actions {
       }, {});
     return priceList;
   }
-  async getUserBuyAll() {
+  async getUserBuyChiaAll() {
     let allList = [];
     let limit = 1000;
     let skip = 0;
-    let userBuyList = await this.getUserBuy(limit, skip);
+    let userBuyList = await this.getUserBuyChia(limit, skip);
     allList = allList.concat(userBuyList);
     while (userBuyList.length === limit) {
       skip = skip + limit;
-      userBuyList = await this.getUserBuy(limit, skip);
+      userBuyList = await this.getUserBuyChia(limit, skip);
       allList = allList.concat(userBuyList);
     }
     return allList;
   }
-  async getUserBuy(limit = 100, skip = 0) {
+  async getUserBuyEthAll() {
+    let allList = [];
+    let limit = 1000;
+    let skip = 0;
+    let userBuyList = await this.getUserBuyEth(limit, skip);
+    allList = allList.concat(userBuyList);
+    while (userBuyList.length === limit) {
+      skip = skip + limit;
+      userBuyList = await this.getUserBuyEth(limit, skip);
+      allList = allList.concat(userBuyList);
+    }
+    return allList;
+  }
+  async getUserBuyChia(limit = 100, skip = 0) {
     const query = new AV.Query('ChiaUserBuy');
     query.descending('date');
     query.include('user');
@@ -243,7 +279,22 @@ class Actions {
       return { ...data, user: user ? user.toJSON() : user, verifier: verifier ? verifier.toJSON() : verifier };
     });
   }
-  async getUserBuyProfit(objectId) {
+  async getUserBuyEth(limit = 100, skip = 0) {
+    const query = new AV.Query('EthUserBuy');
+    query.descending('date');
+    query.include('user');
+    query.include('verifier');
+    query.limit(limit);
+    query.skip(skip);
+    const data = await query.find();
+    return data.map((i) => {
+      const user = i.get('user');
+      const verifier = i.get('verifier');
+      const data = i.toJSON();
+      return { ...data, user: user ? user.toJSON() : user, verifier: verifier ? verifier.toJSON() : verifier };
+    });
+  }
+  async getUserBuyChiaProfit(objectId) {
     const chiaUserBuy = AV.Object.createWithoutData('ChiaUserBuy', objectId);
     const query = new AV.Query('ChiaUserProfitList');
     query.equalTo('chiaUserBuy', chiaUserBuy);
@@ -253,10 +304,69 @@ class Actions {
       return i.toJSON();
     });
   }
+  async getUserBuyEthProfit(objectId) {
+    const ethUserBuy = AV.Object.createWithoutData('EthUserBuy', objectId);
+    const query = new AV.Query('EthUserProfitList');
+    query.equalTo('ethUserBuy', ethUserBuy);
+    query.descending('date');
+    const data = await query.find();
+    return data.map((i) => {
+      return i.toJSON();
+    });
+  }
   /**
-   * 收益
+   * Eth收益
    */
-  async publishUserProfit(values, token, chiaConfig) {
+  async publishUserProfitEth(values, token, ethConfig) {
+    const { profitList, profitSummary } = values;
+    const { closingDate } = ethConfig;
+    const { date: dateStr } = profitSummary;
+    await this.closingLimit('EthWork', ['closingDate', dateStr]);
+    const preDay = moment(dateStr).add(-1, 'day').format('YYYY-MM-DD');
+    if (moment(preDay).isAfter(moment(closingDate))) {
+      await this.preLimit('EthUserProfitSummary', ['date', preDay]);
+    }
+    await this.uniqLimit('EthUserProfitSummary', ['date', dateStr]);
+    const tokenObj = AV.Object.createWithoutData('token', token.objectId);
+    // 1 更新EthUserProfitSummary
+    const ethProfitSummary = new AV.Object('EthUserProfitSummary');
+    const ethProfitSummaryKeys = ['availablePower', 'buyPower', 'todayProfit', 'userNumber', 'perMProfit', 'powerFeeMD', 'date'];
+    ethProfitSummaryKeys.forEach((key) => {
+      ethProfitSummary.set(key, profitSummary[key]);
+    });
+    ethProfitSummary.set('verifier', AV.User.current());
+    ethProfitSummary.set('token', tokenObj);
+    // 2 更新EthProfitList
+    const ethProfitListKeys = ['buyPower', 'availablePower', 'todayProfit', 'totalProfit', 'perMProfit', 'powerFeeMD', 'date'];
+    const profitListFetches = [];
+    profitList.forEach((i) => {
+      const { totalProfit, userBuyObjectId, todayProfit } = i;
+      const userBuyObject = AV.Object.createWithoutData('EthUserBuy', userBuyObjectId);
+      // 3 更新EthUserBuy
+      userBuyObject.set('totalProfit', totalProfit);
+      userBuyObject.set('token', tokenObj);
+      profitListFetches.push(userBuyObject);
+
+      const ethProfitList = new AV.Object('EthUserProfitList');
+      ethProfitListKeys.forEach((key) => {
+        ethProfitList.set(key, i[key]);
+      });
+      ethProfitList.set('ethUserBuy', userBuyObject);
+      const user = AV.Object.createWithoutData('User', i.user.objectId);
+      ethProfitList.set('user', user);
+      ethProfitList.set('verifier', AV.User.current());
+      ethProfitList.set('token', tokenObj);
+      profitListFetches.push(ethProfitList);
+      // 3 追加用户资产
+      const userAsset = this.addUserAssetList(user, tokenObj, todayProfit, token.precision, { from1: ethProfitList });
+      profitListFetches.push(userAsset);
+    });
+    return await AV.Object.saveAll([ethProfitSummary, ...profitListFetches]);
+  }
+  /**
+   * Chia收益
+   */
+  async publishUserProfitChia(values, token, chiaConfig) {
     const { profitList, profitSummary } = values;
     const { closingDate } = chiaConfig;
     const { date: dateStr } = profitSummary;
@@ -296,7 +406,7 @@ class Actions {
       chiaProfitList.set('token', tokenObj);
       profitListFetches.push(chiaProfitList);
       // 3 追加用户资产
-      const userAsset = this.addUserAssetList(user, tokenObj, todayProfit, token.precision, chiaProfitList);
+      const userAsset = this.addUserAssetList(user, tokenObj, todayProfit, token.precision, { from: chiaProfitList });
       profitListFetches.push(userAsset);
     });
     return await AV.Object.saveAll([chiaProfitSummary, ...profitListFetches]);
@@ -313,12 +423,22 @@ class Actions {
     userAsset.set('total', +Utils.formatAmount(amount, precision));
     userAsset.set('token', tokenObj);
     userAsset.set('user', userObj);
-    userAsset.set('from', from);
+    Object.keys(from).forEach((fromKey) => {
+      userAsset.set(fromKey, from[fromKey]);
+    });
     userAsset.set('to', to);
     return userAsset;
   }
   async getChiaProfitSummaryHistory() {
     const query = new AV.Query('ChiaUserProfitSummary');
+    query.descending('date');
+    const data = await query.find();
+    return data.map((i) => {
+      return i.toJSON();
+    });
+  }
+  async getEthProfitSummaryHistory() {
+    const query = new AV.Query('EthUserProfitSummary');
     query.descending('date');
     const data = await query.find();
     return data.map((i) => {
@@ -339,7 +459,7 @@ class Actions {
   /**
    * 设置结算日
    */
-  async settleDay(date) {
+  async settleChiaDay(date) {
     const query = new AV.Query('ChiaWork');
     query.descending('createdAt');
     const config = await query.first();
@@ -352,15 +472,46 @@ class Actions {
       // eslint-disable-next-line no-throw-literal
       throw { rawMessage: `不允许修改之前的结算日` };
     }
-    const { endDay, name, profitToken, purchaseToken, startDay, totalPday, updatedAt, withdrawFee } = config.toJSON();
+    const { endDay, id, name, profitToken, purchaseToken, startDay, totalPday, updatedAt, feeToken, withdrawFee } = config.toJSON();
     const insertItem = new AV.Object('ChiaWork');
     insertItem.set('closingDate', date);
     insertItem.set('endDay', endDay);
     insertItem.set('name', name);
+    insertItem.set('id', id);
     insertItem.set('profitToken', AV.Object.createWithoutData('token', profitToken.objectId));
+    insertItem.set('feeToken', AV.Object.createWithoutData('token', feeToken.objectId));
     insertItem.set('purchaseToken', AV.Object.createWithoutData('token', purchaseToken.objectId));
     insertItem.set('startDay', startDay);
     insertItem.set('totalPday', totalPday);
+    insertItem.set('withdrawFee', withdrawFee);
+    return await insertItem.save();
+  }
+  /**
+   * 设置结算日
+   */
+  async settleEthDay(date) {
+    const query = new AV.Query('EthWork');
+    query.descending('createdAt');
+    const config = await query.first();
+    const { closingDate } = config.toJSON();
+    const preDay = moment(date).add(-1, 'day').format('YYYY-MM-DD');
+    if (moment(preDay).isAfter(moment(closingDate))) {
+      // eslint-disable-next-line no-throw-literal
+      throw { rawMessage: `请先结算${preDay}` };
+    } else if (moment(date).isSameOrBefore(moment(closingDate))) {
+      // eslint-disable-next-line no-throw-literal
+      throw { rawMessage: `不允许修改之前的结算日` };
+    }
+    const { endDay, id, name, profitToken, purchaseToken, feeToken, withdrawFee } = config.toJSON();
+
+    const insertItem = new AV.Object('EthWork');
+    insertItem.set('closingDate', date);
+    insertItem.set('endDay', endDay);
+    insertItem.set('name', name);
+    insertItem.set('id', id);
+    insertItem.set('profitToken', AV.Object.createWithoutData('token', profitToken.objectId));
+    insertItem.set('feeToken', AV.Object.createWithoutData('token', feeToken.objectId));
+    insertItem.set('purchaseToken', AV.Object.createWithoutData('token', purchaseToken.objectId));
     insertItem.set('withdrawFee', withdrawFee);
     return await insertItem.save();
   }
@@ -407,7 +558,7 @@ class Actions {
     const tokenObj = AV.Object.createWithoutData('token', withdrawItem.token.objectId);
     query.set('status', 'done');
     // 更新用户资产
-    const userAsset = this.addUserAssetList(user, tokenObj, -Utils.parseAmount(withdrawItem.lock, withdrawItem.token.precision), withdrawItem.token.precision, null, query);
+    const userAsset = this.addUserAssetList(user, tokenObj, -Utils.parseAmount(withdrawItem.lock, withdrawItem.token.precision), withdrawItem.token.precision, {}, query);
     return await AV.Object.saveAll([query, userAsset]);
   }
 }

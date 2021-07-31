@@ -5,13 +5,13 @@ import { useStore } from 'src/Provider';
 import { PageHeader } from 'src/components';
 import './style.scss';
 const { confirm } = Modal;
-function settleDay(date, store) {
+function settleChiaDay(date, store) {
   confirm({
     title: `确认结算${date}?`,
     content: <div>我确认{date}的数据已核实无误，点击确认后，您将无法插入或修改结算日之前（包括结算日）的数据</div>,
     onOk: async () => {
       try {
-        await Actions.settleDay(date);
+        await Actions.settleChiaDay(date);
         message.success('结算成功');
         const chiaConfig = await Actions.getChiaConfig();
         store.setChiaConfig(chiaConfig);
@@ -40,7 +40,7 @@ export default function Settle() {
         <Button
           type="danger"
           onClick={() => {
-            settleDay(date, store);
+            settleChiaDay(date, store);
           }}
           disabled={!date}
         >

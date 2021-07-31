@@ -4,7 +4,7 @@ import { message, Table, Tooltip, Button } from 'antd';
 import { useStore } from 'src/Provider';
 import actions from 'src/actions';
 import _ from 'lodash';
-const getColumns = (chia) => [
+const getColumns = () => [
   {
     title: '手机号',
     dataIndex: 'phone',
@@ -14,7 +14,7 @@ const getColumns = (chia) => [
     },
   },
   {
-    title: '购买算力/T',
+    title: '购买算力/M',
     dataIndex: 'buyPower',
     key: 'buyPower',
   },
@@ -39,7 +39,7 @@ const getColumns = (chia) => [
     key: 'endDate',
   },
   {
-    title: '累计收益/XCH',
+    title: '累计收益/ETH',
     dataIndex: 'totalProfit',
     key: 'totalProfit',
   },
@@ -49,7 +49,7 @@ const getColumns = (chia) => [
     key: 'operation',
     render: (v, i) => {
       return (
-        <Link to={`/chia/userHistory/${i.objectId}`}>
+        <Link to={`/eth/userHistory/${i.objectId}`}>
           <Button size="small">详情</Button>
         </Link>
       );
@@ -58,7 +58,7 @@ const getColumns = (chia) => [
 ];
 async function fetchData() {
   try {
-    const data = await actions.getUserBuy();
+    const data = await actions.getUserBuyEth();
     return data;
   } catch (e) {
     message.warning(e.rawMessage || '异常：PHT20');
@@ -69,7 +69,6 @@ export default function UserHistoryTable(props) {
   const { showDraw, reloadPage } = props;
   const [dataSource, setDataSource] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { chia } = useStore();
   useEffect(() => {
     (async function () {
       setLoading(true);
@@ -81,7 +80,7 @@ export default function UserHistoryTable(props) {
   return (
     <div className="table-container">
       <Table
-        columns={getColumns(chia)}
+        columns={getColumns()}
         dataSource={dataSource}
         loading={loading}
         rowKey="objectId"

@@ -10,22 +10,22 @@ const columns = [
     key: 'date',
   },
   {
-    title: '总算力/T',
+    title: '总算力/M',
     dataIndex: 'buyPower',
     key: 'buyPower',
   },
   {
-    title: '有效算力/T',
-    dataIndex: 'availablePower',
-    key: 'availablePower',
+    title: '单M收益/ETH',
+    dataIndex: 'perMProfit',
+    key: 'perMProfit',
   },
   {
-    title: '单T收益/XCH',
-    dataIndex: 'perTProfit',
-    key: 'perTProfit',
+    title: '单M单日电费/U',
+    dataIndex: 'powerFeeMD',
+    key: 'powerFeeMD',
   },
   {
-    title: '总发放收益/XCH',
+    title: '总发放收益/ETH',
     dataIndex: 'todayProfit',
     key: 'todayProfit',
   },
@@ -37,10 +37,10 @@ const columns = [
 ];
 async function fetchData() {
   try {
-    const data = await actions.getChiaProfitSummaryHistory();
+    const data = await actions.getEthProfitSummaryHistory();
     return data;
   } catch (e) {
-    message.warning(e.rawMessage || '异常：PHT43');
+    message.warning(e.rawMessage || '异常：PHT431');
     return [];
   }
 }

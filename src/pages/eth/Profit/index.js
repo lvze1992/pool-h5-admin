@@ -10,38 +10,38 @@ import ProfitHistoryTable from './ProfitHistoryTable';
 import moment from 'moment';
 import Utils from 'src/utils';
 import './style.scss';
-function useProfitList(store, perTProfit, date) {
+function useProfitList(store, perMProfit, powerFeeMD, date) {
   const [profitList, setProfitList] = useState([]);
   const [profitSummary, setProfitSummary] = useState({});
   useEffect(() => {
     (async function () {
-      const chiaConfig = store.chia.chiaConfig;
-      if (_.isEmpty(chiaConfig) || !perTProfit || !date) {
+      const ethConfig = store.eth.ethConfig;
+      if (_.isEmpty(ethConfig) || !perMProfit || !date) {
         setProfitList([]);
         return;
       }
       // 获取所有 用户购买记录
-      const allBuyList = await Actions.getUserBuyAll();
-      const allProduceList = Utils.calcProduce(allBuyList, chiaConfig, perTProfit, date);
+      const allBuyList = await Actions.getUserBuyEthAll();
+      const allProduceList = Utils.calcEthProduce(allBuyList, ethConfig, perMProfit, powerFeeMD, date);
       setProfitList(allProduceList);
-      const profitSummary = Utils.calcProduceSummary(allProduceList, perTProfit, date);
+      const profitSummary = Utils.calcEthProduceSummary(allProduceList, perMProfit, powerFeeMD, date);
       setProfitSummary(profitSummary);
     })();
-  }, [store.chia.chiaConfig, perTProfit, date]);
+  }, [store.eth.ethConfig, perMProfit, powerFeeMD, date]);
   return { profitList, profitSummary, profitDate: date };
 }
-function usePerTProfit(date) {
-  const [perTProfit, setPerTProfit] = useState('');
+function usePerMProfit(date) {
+  const [EthDayPower, setEthDayPower] = useState('');
   useEffect(() => {
     (async function () {
       if (!date) {
         return;
       }
-      const dayPower = await Actions.getChiaDayPower(date);
-      setPerTProfit(_.get(dayPower, '[0].perTProfit'));
+      const dayPower = await Actions.getEthDayPower(date);
+      setEthDayPower(_.get(dayPower, '[0]', {}));
     })();
   }, [date]);
-  return { perTProfit };
+  return EthDayPower;
 }
 export default function Profit() {
   const history = useHistory();
@@ -49,9 +49,9 @@ export default function Profit() {
   const [reloadPage, setReload] = useState(0);
   const [date, setDate] = useState();
   const [showDraw, setShowDraw] = useState(false);
-  const { perTProfit } = usePerTProfit(date);
-  let { profitList, profitSummary, profitDate } = useProfitList(store, perTProfit, date);
-  if (!perTProfit || !date) {
+  const { perMProfit, powerFeeMD } = usePerMProfit(date);
+  let { profitList, profitSummary, profitDate } = useProfitList(store, perMProfit, powerFeeMD, date);
+  if (!perMProfit || !date) {
     profitList = [];
     profitSummary = {};
   }
@@ -80,20 +80,22 @@ export default function Profit() {
         ]}
       />
       <ProfitHistoryTable showDraw={showDraw} reloadPage={reloadPage} setShowDraw={setShowDraw} />
-      <Drawer
-        width={'1000px'}
-        title="收益发放"
-        placement="right"
-        closable={false}
-        onClose={() => {
-          setShowDraw(false);
-        }}
-        visible={showDraw}
-        getContainer={false}
-        style={{ position: 'absolute' }}
-      >
-        <UserProfitForm setDate={setDate} setShowDraw={setShowDraw} perTProfit={perTProfit} profitDate={profitDate} profitList={profitList} profitSummary={profitSummary} />
-      </Drawer>
+      {showDraw ? (
+        <Drawer
+          width={'1000px'}
+          title="收益发放"
+          placement="right"
+          closable={false}
+          onClose={() => {
+            setShowDraw(false);
+          }}
+          visible={showDraw}
+          getContainer={false}
+          style={{ position: 'absolute' }}
+        >
+          <UserProfitForm setDate={setDate} setShowDraw={setShowDraw} perMProfit={perMProfit} profitDate={profitDate} profitList={profitList} profitSummary={profitSummary} />
+        </Drawer>
+      ) : null}
     </div>
   );
 }

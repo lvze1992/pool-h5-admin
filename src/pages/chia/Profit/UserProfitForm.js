@@ -69,7 +69,7 @@ const columns = [
 const onFinish = async (values, { setShowDraw, store }) => {
   try {
     const token = store.tokens.filter(({ token }) => token === 'XCH')[0];
-    await Actions.publishUserProfit(values, token, store.chia.chiaConfig);
+    await Actions.publishUserProfitChia(values, token, store.chia.chiaConfig);
     message.success('添加成功');
     setShowDraw(false);
   } catch (e) {

@@ -14,7 +14,6 @@ async function confirmWithdraw(i, { setReload }) {
         await actions.confirmWithdraw(i);
         setReload && setReload(Date.now());
       } catch (e) {
-
         message.warning(e.rawMessage || '异常：WHT16');
       }
     },
@@ -23,13 +22,12 @@ async function confirmWithdraw(i, { setReload }) {
     },
   });
 }
-const getColumns = (chia, { setReload }) => [
+const getColumns = ({ setReload }) => [
   {
     title: '发起时间',
     dataIndex: 'createdAt',
     key: 'createdAt',
     render: (v) => {
-
       return Utils.dateFormat(v, 'YYYY-MM-DD HH:mm:ss');
     },
   },
@@ -67,7 +65,7 @@ const getColumns = (chia, { setReload }) => [
     key: 'lock',
     render: (v, i) => {
       const { lock, withdrawFee, token } = i;
-      return Utils.calc(`${lock} / 10 ^ ${token.precision} - ${withdrawFee}`);
+      return `${token} ${Utils.calc(`${lock} / 10 ^ ${token.precision} - ${withdrawFee}`)}`;
     },
   },
   {
@@ -113,7 +111,7 @@ async function fetchData() {
     const data = await actions.getWithdrawHistory();
     return data;
   } catch (e) {
-    message.warning(e.rawMessage || '异常：WHT20');
+    message.warning(e.rawMessage || '异常：WHT201');
     return [];
   }
 }
@@ -121,7 +119,6 @@ export default function PowerHistoryTable(props) {
   const { showDraw, reloadPage, setReload } = props;
   const [dataSource, setDataSource] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { chia } = useStore();
   useEffect(() => {
     (async function () {
       setLoading(true);
@@ -134,7 +131,7 @@ export default function PowerHistoryTable(props) {
   return (
     <div className="table-container">
       <Table
-        columns={getColumns(chia, { setReload })}
+        columns={getColumns({ setReload })}
         dataSource={dataSource}
         loading={loading}
         rowKey="objectId"
