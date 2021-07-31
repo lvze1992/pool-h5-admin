@@ -12,7 +12,7 @@ function PrivateRoute({ authType, component, ...rest }) {
     <Route
       {...rest}
       component={
-        store.user && store.activeKey
+        store.user && store.user.role === 'admin' && store.activeKey
           ? component
           : () => (
               <Redirect

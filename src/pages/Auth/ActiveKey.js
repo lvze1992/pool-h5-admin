@@ -15,7 +15,7 @@ export default function ActiveKey(props) {
           maxWidth: '600px',
         }}
       >
-        <h1>加零云矿</h1>
+        <h1>JL云矿</h1>
         <Input
           placeholder="请输入激活码"
           prefix={<i className="iconfont iconshebeijihuo" />}
