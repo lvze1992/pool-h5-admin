@@ -9,6 +9,7 @@ import { useStore } from 'src/Provider';
 import ActiveKey from './ActiveKey';
 import UserLogin from './UserLogin';
 import './Auth.scss';
+
 async function login({ activeKey, phone, pwd, sms, store, history }) {
   const isMatched = Utils.matched(activeKey, phone);
   if (!isMatched) {

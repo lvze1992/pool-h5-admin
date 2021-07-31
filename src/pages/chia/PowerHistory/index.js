@@ -15,6 +15,7 @@ export default function PowerHistory() {
         title="算力每日记录"
         extra={[
           <div
+            key="2"
             className="ghost-button"
             onClick={() => {
               setReload(Date.now());

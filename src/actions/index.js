@@ -93,7 +93,19 @@ class Actions {
       return {};
     }
   }
-  async getDayPower(date) {
+  /**
+   * ETH 每日算力
+   */
+  async getETHConfig() {
+    try {
+      const query = new AV.Query('EthWork');
+      const r = await query.first();
+      return r ? r.toJSON() : {};
+    } catch (e) {
+      return {};
+    }
+  }
+  async getChiaDayPower(date) {
     const query = new AV.Query('ChiaPower');
     query.descending('date');
     query.limit(1000);
@@ -105,13 +117,25 @@ class Actions {
       return i.toJSON();
     });
   }
-  async insertDayPower(values, chiaConfig) {
+  async getEthDayPower(date) {
+    const query = new AV.Query('EthPower');
+    query.descending('date');
+    query.limit(1000);
+    if (date) {
+      query.equalTo('date', date);
+    }
+    const data = await query.find();
+    return data.map((i) => {
+      return i.toJSON();
+    });
+  }
+  async insertChiaDayPower(values, chiaConfig) {
     const { closingDate } = chiaConfig;
     const { date, totalPower, availablePower, todayProfit, perTProfit, totalProfit } = values;
     const dateStr = Utils.dateFormat(date);
     await this.closingLimit('ChiaWork', ['closingDate', dateStr]);
     const preDay = moment(dateStr).add(-1, 'day').format('YYYY-MM-DD');
-    if (moment(preDay).isAfter(moment(closingDate))) {
+    if (closingDate && moment(preDay).isAfter(moment(closingDate))) {
       await this.preLimit('ChiaPower', ['date', preDay]);
     }
     await this.uniqLimit('ChiaPower', ['date', dateStr]);
@@ -124,6 +148,29 @@ class Actions {
     ChiaPower.set('totalProfit', totalProfit);
     // 将对象保存到云端
     return await ChiaPower.save();
+  }
+  async insertETHDayPower(values, ethConfig) {
+    const { closingDate } = ethConfig;
+    const { date, totalPower, todayProfit, perMProfit, perMPowerCost, powerFee, powerFeeMD, ManageFee, totalProfit } = values;
+    const dateStr = Utils.dateFormat(date);
+    await this.closingLimit('EthWork', ['closingDate', dateStr]);
+    const preDay = moment(dateStr).add(-1, 'day').format('YYYY-MM-DD');
+    if (closingDate && moment(preDay).isAfter(moment(closingDate))) {
+      await this.preLimit('EthPower', ['date', preDay]);
+    }
+    await this.uniqLimit('EthPower', ['date', dateStr]);
+    const EthPower = new AV.Object('EthPower');
+    EthPower.set('date', dateStr);
+    EthPower.set('totalPower', totalPower);
+    EthPower.set('perMProfit', perMProfit);
+    EthPower.set('todayProfit', todayProfit);
+    EthPower.set('perMPowerCost', perMPowerCost);
+    EthPower.set('powerFee', powerFee);
+    EthPower.set('powerFeeMD', powerFeeMD);
+    EthPower.set('ManageFee', ManageFee);
+    EthPower.set('totalProfit', totalProfit);
+    // 将对象保存到云端
+    return await EthPower.save();
   }
   async insertUserBuy(values, chiaConfig) {
     const { startDay, endDay } = chiaConfig;
@@ -143,6 +190,30 @@ class Actions {
     ChiaUserBuy.set('buyPower', buyPower);
     ChiaUserBuy.set('buyPowerCost', buyPowerCost);
     return await ChiaUserBuy.save();
+  }
+  async getPrice() {
+    const query = new AV.Query('Price');
+    query.include('token');
+    const data = await query.find();
+    const priceList = data
+      .map((i) => {
+        const {
+          convert,
+          convertToken,
+          token: { token },
+        } = i.toJSON();
+        return {
+          convert,
+          convertToken,
+          token,
+        };
+      })
+      .reduce((pre, cur) => {
+        const { convert, convertToken, token } = cur;
+        pre[token] = `${convert} ${convertToken}`;
+        return pre;
+      }, {});
+    return priceList;
   }
   async getUserBuyAll() {
     let allList = [];
@@ -325,7 +396,7 @@ class Actions {
     const config = await query.first();
     const { closingDate } = config.toJSON();
     const isAfter = moment(value).isAfter(moment(closingDate));
-    if (!isAfter) {
+    if (!isAfter && closingDate) {
       // eslint-disable-next-line no-throw-literal
       throw { rawMessage: '不能修改已结算日期前的数据' };
     }

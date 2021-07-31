@@ -37,7 +37,7 @@ function usePerTProfit(date) {
       if (!date) {
         return;
       }
-      const dayPower = await Actions.getDayPower(date);
+      const dayPower = await Actions.getChiaDayPower(date);
       setPerTProfit(_.get(dayPower, '[0].perTProfit'));
     })();
   }, [date]);

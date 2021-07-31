@@ -70,7 +70,7 @@ const getColumns = (chia) => [
 ];
 async function fetchData() {
   try {
-    const data = await actions.getDayPower();
+    const data = await actions.getChiaDayPower();
     return data;
   } catch (e) {
     message.warning(e.rawMessage || '异常：PHT20');

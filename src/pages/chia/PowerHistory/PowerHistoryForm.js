@@ -13,7 +13,7 @@ const tailLayout = {
 const required = { required: true, message: '必填' };
 const onFinish = async (values, { setShowDraw, store }) => {
   try {
-    await Actions.insertDayPower(values, store.chia.chiaConfig);
+    await Actions.insertChiaDayPower(values, store.chia.chiaConfig);
     message.success('添加成功');
     setShowDraw(false);
   } catch (e) {

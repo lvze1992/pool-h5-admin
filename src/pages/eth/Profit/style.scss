@@ -1,0 +1,30 @@
+.profit-page {
+  .userProfit-form {
+    .form-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      .item {
+        display: flex;
+        align-items: center;
+        width: 400px;
+        .key {
+          flex-basis: 150px;
+        }
+        .value {
+          flex-basis: 250px;
+        }
+      }
+    }
+  }
+  .table-container {
+    padding: 25px;
+    .overflow-text {
+      max-width: 100px;
+      overflow: hidden;
+      display: inline-block;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+  }
+}

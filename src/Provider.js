@@ -7,16 +7,22 @@ function useProvideStore() {
   const [activeKey, seActiveKey] = useState(localStorage.getItem('activeKey') || '');
   const [user, setUser] = useState(currentUser ? currentUser.toJSON() : null);
   const [chiaConfig, setChiaConfig] = useState({});
+  const [ethConfig, setEthConfig] = useState({});
   const [tokens, setTokens] = useState([]);
+  const [price, setPrice] = useState({});
   useEffect(() => {
     (async function () {
       const chiaConfig = await Actions.getChiaConfig();
+      const ethConfig = await Actions.getETHConfig();
       const tokens = await Actions.getTokens();
+      const price = await Actions.getPrice({});
       setChiaConfig(chiaConfig);
+      setEthConfig(ethConfig);
       setTokens(tokens);
+      setPrice(price);
     })();
   }, []);
-  console.log('user', user, Actions.AV);
+  console.log('useProvideStore', user, Actions.AV, price, tokens, chiaConfig, ethConfig);
   const userPhone = user ? user.mobilePhoneNumber : '';
   const isMatched = Utils.matched(activeKey, userPhone.replace('+86', ''));
   const signin = (user, cb) => {
@@ -42,6 +48,10 @@ function useProvideStore() {
     chia: {
       chiaConfig,
     },
+    eth: {
+      ethConfig,
+    },
+    price,
     tokens,
     signin,
     signout,

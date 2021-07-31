@@ -1,10 +1,29 @@
 import React, { useEffect, useState } from 'react';
 import { PageHeader, Button, Tag, Tooltip } from 'antd';
+import { useRouteMatch } from 'react-router-dom';
+import _ from 'lodash';
 import { useStore } from 'src/Provider';
+function getPoolId(match) {
+  try {
+    const { path } = match;
+    const execResult = /\/([a-z]*)\//.exec(path)[1];
+    return execResult.toUpperCase();
+  } catch (e) {
+    return '';
+  }
+}
+function getConfig(store, poolId) {
+  return _.get(store, `${poolId.toLowerCase()}.${poolId.toLowerCase()}Config`);
+}
 export default function CustomPageHeader(props) {
+  const match = useRouteMatch();
+  const poolId = getPoolId(match);
   const { title, extra } = props;
-  const { chia } = useStore();
-  const { closingDate } = chia.chiaConfig;
+  const store = useStore();
+  const config = getConfig(store, poolId);
+  const { closingDate = '-' } = config;
+  const { price } = store;
+
   return (
     <PageHeader
       title={title}
@@ -22,7 +41,14 @@ export default function CustomPageHeader(props) {
           </Tooltip>
         </div>
       }
-      tags={<Tag color="blue">{closingDate}</Tag>}
+      tags={[
+        <Tag key="closingDate" color="blue">
+          {closingDate}
+        </Tag>,
+        <Tag key="price" color="blue">
+          {`USDT ≈ ${price['USDT']}`}
+        </Tag>,
+      ]}
       className="site-page-header"
       extra={extra}
     />
