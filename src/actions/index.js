@@ -18,6 +18,7 @@ class Actions {
   async getAllUsers() {
     const query = new AV.Query('UserInfo');
     query.include('user');
+    query.descending('createdAt');
     return (await query.find()).map((i) => i.toJSON());
   }
   async queryAllUsers(phone) {
@@ -26,6 +27,7 @@ class Actions {
     const query = new AV.Query('UserInfo');
     query.matchesQuery('user', user);
     query.include('user');
+    query.descending('createdAt');
     return (await query.find()).map((i) => i.toJSON());
   }
   async queryUser(phone) {
