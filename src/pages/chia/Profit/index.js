@@ -58,7 +58,7 @@ export default function Profit() {
   return (
     <div className="profit-page">
       <PageHeader
-        title="用户购买添加"
+        title="收益发放"
         extra={[
           <div
             className="ghost-button"

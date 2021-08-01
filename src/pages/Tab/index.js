@@ -24,14 +24,14 @@ export default function Tab(props) {
       >
         <SubMenu key="chia" icon={<i className="menu-icon iconfont iconmineral" />} title="Chia算力管理">
           <Item key="/chia/powerHistory">算力每日记录</Item>
-          <Item key="/chia/userHistory">用户记录</Item>
+          <Item key="/chia/userHistory">用户购买</Item>
           <Item key="/chia/profit">收益发放</Item>
           <Item key="/chia/withdraw">提现监控</Item>
           <Item key="/chia/settle">结算</Item>
         </SubMenu>
         <SubMenu key="eth" icon={<i className="menu-icon iconfont iconmineral" />} title="ETH算力管理">
           <Item key="/eth/powerHistory">算力每日记录</Item>
-          <Item key="/eth/userHistory">用户记录</Item>
+          <Item key="/eth/userHistory">用户购买</Item>
           <Item key="/eth/profit">收益发放</Item>
           <Item key="/eth/withdraw">提现监控</Item>
           <Item key="/eth/settle">结算</Item>

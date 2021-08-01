@@ -7,7 +7,7 @@ export default function Withdraw() {
   return (
     <div className="withdraw-page">
       <PageHeader
-        title="算力每日记录"
+        title="提现监控"
         extra={[
           <div
             className="ghost-button"

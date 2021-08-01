@@ -12,7 +12,7 @@ export default function UserHistory() {
   return (
     <div className="userHistory-page">
       <PageHeader
-        title="用户购买添加"
+        title="用户购买"
         extra={[
           <div
             key="2"
