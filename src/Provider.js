@@ -1,6 +1,7 @@
 import React, { useContext, createContext, useState, useEffect } from 'react';
 import Actions from 'src/actions';
 import Utils from 'src/utils';
+let timer = null;
 const StoreContext = createContext();
 function useProvideStore() {
   const currentUser = Actions.AV.User.current();
@@ -15,12 +16,19 @@ function useProvideStore() {
       const chiaConfig = await Actions.getChiaConfig();
       const ethConfig = await Actions.getEthConfig();
       const tokens = await Actions.getTokens();
-      const price = await Actions.getPrice({});
       setChiaConfig(chiaConfig);
       setEthConfig(ethConfig);
       setTokens(tokens);
+      const price = await Actions.getPrice({});
       setPrice(price);
+      timer = setInterval(async () => {
+        const price = await Actions.getPrice({});
+        setPrice(price);
+      }, 20 * 1000);
     })();
+    return () => {
+      clearInterval(timer);
+    };
   }, []);
   console.log('useProvideStore', user, Actions.AV, price, tokens, chiaConfig, ethConfig);
   const userPhone = user ? user.mobilePhoneNumber : '';
