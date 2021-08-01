@@ -176,6 +176,7 @@ class Actions {
   }
   async insertUserBuyChia(values, chiaConfig) {
     const { startDay, endDay } = chiaConfig;
+    const ChiaWork = AV.Object.createWithoutData('ChiaWork', chiaConfig.objectId);
     const { buyPower, buyPowerCost, date, userId } = values;
     const dateStr = Utils.dateFormat(date);
     const user = AV.Object.createWithoutData('User', userId);
@@ -191,13 +192,15 @@ class Actions {
     ChiaUserBuy.set('verifier', AV.User.current());
     ChiaUserBuy.set('buyPower', buyPower);
     ChiaUserBuy.set('buyPowerCost', buyPowerCost);
+    ChiaUserBuy.set('work', ChiaWork);
     return await ChiaUserBuy.save();
   }
-  async insertUserBuyEth(values) {
+  async insertUserBuyEth(values, ethConfig) {
     const { buyPower, buyPowerCost, date, userId, startDate, endDate } = values;
+    const EthWork = AV.Object.createWithoutData('EthWork', ethConfig.objectId);
     const dateStr = Utils.dateFormat(date);
-    const startDateStr = Utils.dateFormat(startDate);
-    const endDateStr = Utils.dateFormat(endDate);
+    const startDateStr = moment(`${Utils.dateFormat(startDate)} 00:00:00`).format('YYYY-MM-DD HH:mm:ss');
+    const endDateStr = moment(`${Utils.dateFormat(endDate)} 00:00:00`).format('YYYY-MM-DD HH:mm:ss');
     if (moment(startDate).isBefore(moment(date)) || moment(endDate).isBefore(moment(startDate))) {
       // eslint-disable-next-line no-throw-literal
       throw { rawMessage: '请确保 到期日期 > 生效日期 > 购买日期' };
@@ -212,6 +215,7 @@ class Actions {
     EthUserBuy.set('verifier', AV.User.current());
     EthUserBuy.set('buyPower', buyPower);
     EthUserBuy.set('buyPowerCost', buyPowerCost);
+    EthUserBuy.set('work', EthWork);
     return await EthUserBuy.save();
   }
   async getPrice() {

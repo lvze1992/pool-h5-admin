@@ -25,22 +25,27 @@ const onFinish = async (values, { setShowDraw, store }) => {
 
 const onFinishFailed = (errorInfo) => {};
 function calcPowerFeeMD(perMPowerCost, powerFee, price) {
+  if (!perMPowerCost || !powerFee || !price) {
+    return '';
+  }
   const usdt_cny = +price['USDT'].split(' ')[0];
-  return Utils.cutNumber(Utils.calc(`${perMPowerCost}*${powerFee}/${usdt_cny}*24`), 9);
+  return Utils.cutNumber(Utils.calc(`${perMPowerCost}*${powerFee}/${usdt_cny}*24`), 9) + '';
 }
 export default function PowerHistoryForm(props) {
+  const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const store = useStore();
   const { price } = store;
   const { setShowDraw } = props;
-  const perMPowerCost = 0.001454166;
-  const powerFee = 0.69;
-  const ManageFee = 0.15;
+  const perMPowerCost = '0.001454166';
+  const powerFee = '0.69';
+  const ManageFee = '0.15';
   if (_.isEmpty(price)) {
     return null;
   }
   return (
     <Form
+      form={form}
       {...layout}
       name="basic"
       onFinish={async (values) => {
@@ -53,6 +58,14 @@ export default function PowerHistoryForm(props) {
         powerFee,
         powerFeeMD: calcPowerFeeMD(perMPowerCost, powerFee, price),
         ManageFee,
+      }}
+      onValuesChange={(changedValues, allValues) => {
+        console.log('changedValues', changedValues);
+        if (changedValues.perMPowerCost || changedValues.powerFee) {
+          form.setFieldsValue({
+            powerFeeMD: calcPowerFeeMD(allValues.perMPowerCost, allValues.powerFee, price),
+          });
+        }
       }}
       onFinishFailed={onFinishFailed}
     >
@@ -75,7 +88,7 @@ export default function PowerHistoryForm(props) {
         <Input type="number" />
       </Item>
       <Item name="powerFeeMD" label="单M单日电费/U：" rules={[required]}>
-        <Input type="number" />
+        <Input type="number" disabled />
       </Item>
       <Item name="ManageFee" label="管理费：" rules={[required]}>
         <Input type="number" />

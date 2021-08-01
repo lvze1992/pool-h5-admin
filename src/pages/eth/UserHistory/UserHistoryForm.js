@@ -12,9 +12,9 @@ const tailLayout = {
   wrapperCol: { offset: 8, span: 16 },
 };
 const required = { required: true, message: '必填' };
-const onFinish = async (values, { success }) => {
+const onFinish = async (values, { success, store }) => {
   try {
-    await Actions.insertUserBuyEth(values);
+    await Actions.insertUserBuyEth(values, store.eth.ethConfig);
     message.success('添加成功');
     success(false);
   } catch (e) {
@@ -40,6 +40,7 @@ export default function UserHistoryForm(props) {
             form.resetFields();
             setShowDraw();
           },
+          store,
         });
         setLoading(false);
       }}

@@ -62,7 +62,7 @@ const getColumns = (chia, { setReload }) => [
     },
   },
   {
-    title: '提笔数量',
+    title: '提币数量',
     dataIndex: 'lock',
     key: 'lock',
     render: (v, i) => {

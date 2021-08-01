@@ -60,12 +60,12 @@ const getColumns = ({ setReload }) => [
     },
   },
   {
-    title: '提笔数量',
+    title: '提币数量',
     dataIndex: 'lock',
     key: 'lock',
     render: (v, i) => {
       const { lock, withdrawFee, token } = i;
-      return `${token} ${Utils.calc(`${lock} / 10 ^ ${token.precision} - ${withdrawFee}`)}`;
+      return `${token.token} ${Utils.calc(`${lock} / 10 ^ ${token.precision} - ${withdrawFee}`)}`;
     },
   },
   {
