@@ -248,8 +248,6 @@ class Actions {
     query.include('token');
     const data = await query.find();
     const priceList = data.map((i) => i.toJSON());
-    console.log('data', priceList);
-
     Object.keys(values).forEach((token) => {
       const object = _.find(priceList, function (o) {
         return o.token.token === token;
@@ -258,7 +256,7 @@ class Actions {
         return;
       }
       const Price = AV.Object.createWithoutData('Price', object.objectId);
-      Price.set('convert', values[token]);
+      Price.set('convert', values[token].split(' ')[0]);
       batchUpdate.push(Price);
     });
     if (_.isEmpty(batchUpdate)) {
