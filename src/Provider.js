@@ -58,6 +58,7 @@ function useProvideStore() {
     seActiveKey,
     setChiaConfig,
     setEthConfig,
+    setPrice,
   };
 }
 function ProvideStore({ children }) {

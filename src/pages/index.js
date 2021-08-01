@@ -13,6 +13,7 @@ import ETH_Profit from './eth/Profit';
 import ETH_Withdraw from './eth/Withdraw';
 import ETH_UserHistoryDetail from './eth/UserHistoryDetail';
 import ETH_Settle from './eth/Settle';
+import ETH_Market from './eth/Market';
 
 export {
   Tab,
@@ -30,4 +31,5 @@ export {
   ETH_Withdraw,
   ETH_UserHistoryDetail,
   ETH_Settle,
+  ETH_Market,
 };

@@ -18,6 +18,7 @@ import {
   ETH_Withdraw,
   ETH_UserHistoryDetail,
   ETH_Settle,
+  ETH_Market,
 } from './pages';
 import { ProvideStore, useStore } from './Provider';
 import './App.scss';
@@ -79,6 +80,7 @@ function App() {
                   <PrivateRoute path="/eth/profit" component={ETH_Profit} />
                   <PrivateRoute path="/eth/withdraw" component={ETH_Withdraw} />
                   <PrivateRoute path="/eth/settle" component={ETH_Settle} />
+                  <PrivateRoute path="/eth/market" component={ETH_Market} />
                 </Switch>
               </Route>
             </Tab>

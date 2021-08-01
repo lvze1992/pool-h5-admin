@@ -242,6 +242,30 @@ class Actions {
       }, {});
     return priceList;
   }
+  async updatePrice(values) {
+    let batchUpdate = [];
+    const query = new AV.Query('Price');
+    query.include('token');
+    const data = await query.find();
+    const priceList = data.map((i) => i.toJSON());
+    console.log('data', priceList);
+
+    Object.keys(values).forEach((token) => {
+      const object = _.find(priceList, function (o) {
+        return o.token.token === token;
+      });
+      if (!object) {
+        return;
+      }
+      const Price = AV.Object.createWithoutData('Price', object.objectId);
+      Price.set('convert', values[token]);
+      batchUpdate.push(Price);
+    });
+    if (_.isEmpty(batchUpdate)) {
+      return;
+    }
+    return await AV.Object.saveAll(batchUpdate);
+  }
   async getUserBuyChiaAll() {
     let allList = [];
     let limit = 1000;

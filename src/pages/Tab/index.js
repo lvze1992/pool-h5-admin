@@ -35,6 +35,7 @@ export default function Tab(props) {
           <Item key="/eth/profit">收益发放</Item>
           <Item key="/eth/withdraw">提现监控</Item>
           <Item key="/eth/settle">结算</Item>
+          <Item key="/eth/market">行情</Item>
         </SubMenu>
         <SubMenu key="sub2" icon={<i className="menu-icon iconfont iconyonghu" />} title="用户管理">
           <Item key="11">Option 1</Item>

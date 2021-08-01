@@ -48,12 +48,12 @@ export default function CustomPageHeader(props) {
           </Tag>
         ) : null,
         price['USDT'] ? (
-          <Tag key="price" color="blue">
+          <Tag key="price1" color="blue">
             {`USDT ≈ ${price['USDT']}`}
           </Tag>
         ) : null,
         price['ETH'] ? (
-          <Tag key="price" color="blue">
+          <Tag key="price2" color="blue">
             {`ETH ≈ ${price['ETH']}`}
           </Tag>
         ) : null,
