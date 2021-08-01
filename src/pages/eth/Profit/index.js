@@ -10,24 +10,25 @@ import ProfitHistoryTable from './ProfitHistoryTable';
 import moment from 'moment';
 import Utils from 'src/utils';
 import './style.scss';
-function useProfitList(store, perMProfit, powerFeeMD, date) {
+function useProfitList(store, { perMProfit, powerFeeMD, ManageFee, date }) {
   const [profitList, setProfitList] = useState([]);
   const [profitSummary, setProfitSummary] = useState({});
   useEffect(() => {
     (async function () {
       const ethConfig = store.eth.ethConfig;
-      if (_.isEmpty(ethConfig) || !perMProfit || !date) {
+      if (_.isEmpty(ethConfig) || !perMProfit || !date || !_.get(store, 'price.ETH')) {
         setProfitList([]);
         return;
       }
+      const EthPrice = _.get(store, 'price.ETH').split(' ')[0];
       // 获取所有 用户购买记录
       const allBuyList = await Actions.getUserBuyEthAll();
-      const allProduceList = Utils.calcEthProduce(allBuyList, ethConfig, perMProfit, powerFeeMD, date);
+      const allProduceList = Utils.calcEthProduce(allBuyList, ethConfig, { perMProfit, powerFeeMD, EthPrice, ManageFee, date });
       setProfitList(allProduceList);
-      const profitSummary = Utils.calcEthProduceSummary(allProduceList, perMProfit, powerFeeMD, date);
+      const profitSummary = Utils.calcEthProduceSummary(allProduceList, { perMProfit, powerFeeMD, ManageFee, date });
       setProfitSummary(profitSummary);
     })();
-  }, [store.eth.ethConfig, perMProfit, powerFeeMD, date]);
+  }, [store.eth.ethConfig, perMProfit, ManageFee, powerFeeMD, date]);
   return { profitList, profitSummary, profitDate: date };
 }
 function usePerMProfit(date) {
@@ -49,8 +50,8 @@ export default function Profit() {
   const [reloadPage, setReload] = useState(0);
   const [date, setDate] = useState();
   const [showDraw, setShowDraw] = useState(false);
-  const { perMProfit, powerFeeMD } = usePerMProfit(date);
-  let { profitList, profitSummary, profitDate } = useProfitList(store, perMProfit, powerFeeMD, date);
+  const { perMProfit, powerFeeMD, ManageFee } = usePerMProfit(date);
+  let { profitList, profitSummary, profitDate } = useProfitList(store, { perMProfit, powerFeeMD, ManageFee, date });
   if (!perMProfit || !date) {
     profitList = [];
     profitSummary = {};

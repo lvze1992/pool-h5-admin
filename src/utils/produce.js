@@ -54,15 +54,16 @@ export function calcChiaProduceSummary(list, perTProfit, date) {
   };
 }
 
-export function calcEthProduce(list, ethConfig, perMProfit, powerFeeMD, date) {
+export function calcEthProduce(list, ethConfig, { perMProfit, EthPrice, powerFeeMD, ManageFee, date }) {
   // list 购买记录 => 收益记录
+  const {} = ethConfig;
   const date1 = moment(`${date} 00:00:00`);
   const date2 = moment(`${date} 24:00:00`);
   let avaList = list.filter(({ startDate, endDate }) => {
     return moment(startDate).isSameOrBefore(date1) && moment(endDate).isSameOrAfter(date2);
   });
   return avaList.map(({ user, buyPower, objectId, startDate, totalProfit = 0 }, idx) => {
-    const todayProfit = U.calc(`${buyPower} * (${perMProfit} - ${powerFeeMD}) * 0.85`);
+    const todayProfit = U.calc(`${buyPower} * (${perMProfit} - ${powerFeeMD}/${EthPrice}) * (1 - ${ManageFee})`);
     const nextTotalProfit = U.calc(`${totalProfit} + ${todayProfit}`);
     return {
       userBuyObjectId: objectId,
@@ -79,7 +80,7 @@ export function calcEthProduce(list, ethConfig, perMProfit, powerFeeMD, date) {
   });
 }
 
-export function calcEthProduceSummary(list, perMProfit, powerFeeMD, date) {
+export function calcEthProduceSummary(list, { perMProfit, powerFeeMD, ManageFee, date }) {
   // 汇总收益记录
   let _availablePower = '0',
     _buyPower = '0',
