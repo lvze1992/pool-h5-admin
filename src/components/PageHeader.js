@@ -42,12 +42,21 @@ export default function CustomPageHeader(props) {
         </div>
       }
       tags={[
-        <Tag key="closingDate" color="blue">
-          {closingDate}
-        </Tag>,
-        <Tag key="price" color="blue">
-          {`USDT ≈ ${price['USDT']}`}
-        </Tag>,
+        closingDate ? (
+          <Tag key="closingDate" color="blue">
+            {closingDate}
+          </Tag>
+        ) : null,
+        price['USDT'] ? (
+          <Tag key="price" color="blue">
+            {`USDT ≈ ${price['USDT']}`}
+          </Tag>
+        ) : null,
+        price['ETH'] ? (
+          <Tag key="price" color="blue">
+            {`ETH ≈ ${price['ETH']}`}
+          </Tag>
+        ) : null,
       ]}
       className="site-page-header"
       extra={extra}
