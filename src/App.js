@@ -19,6 +19,7 @@ import {
   ETH_UserHistoryDetail,
   ETH_Settle,
   ETH_Market,
+  ManageUser,
 } from './pages';
 import { ProvideStore, useStore } from './Provider';
 import './App.scss';
@@ -83,6 +84,7 @@ function App() {
                   <PrivateRoute path="/eth/market" component={ETH_Market} />
                 </Switch>
               </Route>
+              <PrivateRoute path="/user" component={ManageUser} />
             </Tab>
           </Switch>
         </Switch>

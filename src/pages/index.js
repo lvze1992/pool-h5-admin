@@ -14,6 +14,7 @@ import ETH_Withdraw from './eth/Withdraw';
 import ETH_UserHistoryDetail from './eth/UserHistoryDetail';
 import ETH_Settle from './eth/Settle';
 import ETH_Market from './eth/Market';
+import ManageUser from './user/ManageUser';
 
 export {
   Tab,
@@ -32,4 +33,5 @@ export {
   ETH_UserHistoryDetail,
   ETH_Settle,
   ETH_Market,
+  ManageUser,
 };

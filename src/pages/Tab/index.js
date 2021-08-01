@@ -38,10 +38,7 @@ export default function Tab(props) {
           <Item key="/eth/market">行情</Item>
         </SubMenu>
         <SubMenu key="sub2" icon={<i className="menu-icon iconfont iconyonghu" />} title="用户管理">
-          <Item key="11">Option 1</Item>
-          <Item key="12">Option 2</Item>
-          <Item key="13">Option 3</Item>
-          <Item key="14">Option 4</Item>
+          <Item key="/user">用户管理</Item>
         </SubMenu>
       </Menu>
       <div className="menu-container">{props.children}</div>

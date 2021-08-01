@@ -15,11 +15,17 @@ class Actions {
   /**
    * 用户
    */
+  async getAllUsers() {
+    const query = new AV.Query('UserInfo');
+    query.include('user');
+    return (await query.find()).map((i) => i.toJSON());
+  }
   async queryAllUsers(phone) {
     const user = new AV.Query('User');
     user.contains('mobilePhoneNumber', phone);
     const query = new AV.Query('UserInfo');
     query.matchesQuery('user', user);
+    query.include('user');
     return (await query.find()).map((i) => i.toJSON());
   }
   async queryUser(phone) {

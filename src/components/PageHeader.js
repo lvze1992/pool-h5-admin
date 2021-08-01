@@ -13,7 +13,7 @@ function getPoolId(match) {
   }
 }
 function getConfig(store, poolId) {
-  return _.get(store, `${poolId.toLowerCase()}.${poolId.toLowerCase()}Config`);
+  return _.get(store, `${poolId.toLowerCase()}.${poolId.toLowerCase()}Config`, {});
 }
 export default function CustomPageHeader(props) {
   const match = useRouteMatch();
@@ -21,7 +21,7 @@ export default function CustomPageHeader(props) {
   const { title, extra } = props;
   const store = useStore();
   const config = getConfig(store, poolId);
-  const { closingDate = '-' } = config;
+  const { closingDate } = config;
   const { price } = store;
 
   return (
